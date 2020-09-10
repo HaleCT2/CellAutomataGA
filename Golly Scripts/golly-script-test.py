@@ -54,7 +54,7 @@ g.randfill(int(fillPerc))
 g.setalgo("QuickLife")
 customRule = g.getstring("If you wish to use a Specific Rule,\n" +
                          "enter it below with 'B0...8/S0...8' Notation.\n" +
-                         "Otherwise, press 'Okay' for Random Generation:",
+                         "Otherwise, press 'OK' for Random Generation:",
                          "Random", "Specific Rule Set")
 
 if (customRule == "Random"):
