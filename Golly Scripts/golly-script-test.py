@@ -9,6 +9,8 @@ import golly as g
 import random
 # OS Library used for File Management
 import os
+# Import WriteBMP from GLife
+from glife.WriteBMP import WriteBMP
 
 
 # -----------------------------------------------------------------------------
@@ -40,6 +42,36 @@ def make_rule():
     # Return Rule after concatenating Strings
     rule = "b" + bornRule + "/s" + surviveRule
     return rule
+# -----------------------------------------------------------------------------
+
+
+# -----------------------------------------------------------------------------
+# Function to Create .BMP Images for each Pattern
+def write_bmp(bmp_fileName):
+    prect = g.getrect()
+    x = prect[0]
+    y = prect[1]
+    wd = prect[2]
+    ht = prect[3]
+
+    colors = g.getcolors()     # White & Black
+    state0 = (colors[1], colors[2], colors[3])
+
+    # Create 2D Array of Pixels
+    pixels = [[state0 for col in xrange(wd)] for row in xrange(ht)]
+
+    cellcount = 0
+    for row in xrange(ht):
+        # Get a Row of Cells at a time
+        cells = g.getcells([x, y + row, wd, 1])
+        clen = len(cells)
+        if clen > 0:
+            inc = 2
+        for i in xrange(0, clen, inc):
+            pixels[row][cells[i]-x] = (colors[5], colors[6], colors[7])
+            cellcount += 1
+
+    WriteBMP(pixels, bmp_fileName)
 # -----------------------------------------------------------------------------
 
 
@@ -79,13 +111,24 @@ fileNamePrefix = fileLoc + rule.replace("/", "_") + "_"
 numGenerations = g.getstring("Enter Number of Generations to Explore:",
                              "10", "Number of Generations")
 
+# Choose File Format
+fileChoice = g.getstring("Enter Preferred Pattern File Format\n" +
+                         "(Either 'RLE' or 'BMP'):", "RLE", "File Format")
+
 for i in range(int(numGenerations) + 1):
     # Stop Loop if Universe is Empty
     if (g.empty()):
         break
 
-    fileName = fileNamePrefix + str(i) + ".rle"
-    g.save(fileName, "rle")
+    # Determine File Names
+    fileNameRLE = fileNamePrefix + str(i) + ".rle"
+    fileNameBMP = fileNamePrefix + str(i) + ".bmp"
+
+    if (fileChoice == "RLE"):
+        g.save(fileNameRLE, "rle")
+    elif (fileChoice == "BMP" or fileChoice == "bmp"):
+        write_bmp(fileNameBMP)
+
     g.run(1)
 
 # Prepare for Viewing
