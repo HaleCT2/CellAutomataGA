@@ -11,6 +11,8 @@ import random
 import os
 # Import WriteBMP from GLife
 from glife.WriteBMP import WriteBMP
+# Import FileCmp for BMP File Comparison
+import filecmp
 
 
 # -----------------------------------------------------------------------------
@@ -103,7 +105,8 @@ if (os.path.isdir(fileLoc) is not True):
 
 # Creates Subfolder specific to Rule Set to hold Generation Patterns
 fileLoc += rule.replace("/", "_") + "\\"
-os.mkdir(fileLoc)
+if (os.path.isdir(fileLoc) is not True):
+    os.mkdir(fileLoc)
 # Prepare File Names for each Genereration's Pattern File
 fileNamePrefix = fileLoc + rule.replace("/", "_") + "_"
 
@@ -123,11 +126,21 @@ for i in range(int(numGenerations) + 1):
     # Determine File Names
     fileNameRLE = fileNamePrefix + str(i) + ".rle"
     fileNameBMP = fileNamePrefix + str(i) + ".bmp"
+    # Determine Previous File Names
+    fileNamePrevRLE = fileNamePrefix + str(i-1) + ".rle"
+    fileNamePrevBMP = fileNamePrefix + str(i-1) + ".bmp"
 
     if (fileChoice == "RLE"):
         g.save(fileNameRLE, "rle")
+        # Compare Previous Generation to Determine Class I Systems
+        if (i > 0 and filecmp.cmp(fileNameRLE, fileNamePrevRLE)):
+            break
+
     elif (fileChoice == "BMP" or fileChoice == "bmp"):
         write_bmp(fileNameBMP)
+        # Compare Previous Generation to Determine Class I Systems
+        if (i > 0 and filecmp.cmp(fileNameBMP, fileNamePrevBMP)):
+            break
 
     g.run(1)
 
