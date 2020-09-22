@@ -1,6 +1,7 @@
 # File:         golly-script-test.py
 # Author:       Carter Hale
 # Date Created: September 9, 2020
+# Last Updated: September 22, 2020
 
 # Golly doesn't offer standalone Library so the Module is instantiated
 # when the Executable is launched. Script can only be ran from within Golly.
@@ -77,6 +78,17 @@ def write_bmp(bmp_fileName):
 # -----------------------------------------------------------------------------
 
 
+# -----------------------------------------------------------------------------
+# Function to compare RLE Files for Homogeneity
+def compare_rle(fileName1, fileName2):
+    with open(fileName1, 'r') as file1:
+        with open(fileName2, 'r') as file2:
+            difference = set(file1).difference(file2)
+
+    return (len(difference) == 1)
+# -----------------------------------------------------------------------------
+
+
 # Create New Window and fill X% of YxY Square Grid with Random Noise
 g.new("test-pattern")
 gridSize = g.getstring("Enter Side Length of Grid:", "100", "Grid Size")
@@ -133,7 +145,7 @@ for i in range(int(numGenerations) + 1):
     if (fileChoice == "RLE"):
         g.save(fileNameRLE, "rle")
         # Compare Previous Generation to Determine Class I Systems
-        if (i > 0 and filecmp.cmp(fileNameRLE, fileNamePrevRLE)):
+        if (i > 0 and compare_rle(fileNameRLE, fileNamePrevRLE)):
             break
 
     elif (fileChoice == "BMP" or fileChoice == "bmp"):
