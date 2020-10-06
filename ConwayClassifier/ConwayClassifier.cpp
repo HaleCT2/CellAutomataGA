@@ -15,12 +15,10 @@ ConwayClassifier::ConwayClassifier(const std::string& dataDirPath,
     this->classNum = 5; // initialize classNum
     // not sure if I need two of these or not but I mess with fileStreams1 in
     // calcBoardSpecs so I suspect I need them both
-    std::vector<std::ifstream> fileHeaderStreams = // to be used to check hdrs
-            populateIStreamVec(dataDirPath, genNum);
-    std::vector<std::ifstream> fileStreams = // used to fill the board
+    std::vector<std::ifstream*> fileStreams = // to be used to check hdrs
             populateIStreamVec(dataDirPath, genNum);
     // initialize rest of vars inside calcBoardSpecs and fillBoard
-    calcBoardSpecs(fileHeaderStreams);
+    calcBoardSpecs(fileStreams);
     // with necessary data grabbed now can initialize the array
     initializeGameBoard(genNum);
     fillBoard(fileStreams);
@@ -31,13 +29,14 @@ ConwayClassifier::~ConwayClassifier() {
     free(this->gameBoard);
 }
 
-std::vector<std::ifstream>
+std::vector<std::ifstream*>
 ConwayClassifier::populateIStreamVec(const std::string& dataPath,
         const int genNum) const {
-    std::vector<std::ifstream> rVec;
+    std::vector<std::ifstream*> rVec;
     for (int i = 0; i <= genNum; i++) {
-        std::ifstream is(dataPath + "/" + dataPath + "_" +
-                std::to_string(i) + ".rle");
+        std::string path = dataPath + "/" + dataPath + "_" +
+                std::to_string(i) + ".rle";
+        std::ifstream *is = new std::ifstream(path);
         rVec.push_back(is);
     }
     return rVec;
@@ -46,14 +45,14 @@ ConwayClassifier::populateIStreamVec(const std::string& dataPath,
 // I wish this method wasn't so chonky but idk how to shorten it and still
 // have it work efficiently
 
-void ConwayClassifier::calcBoardSpecs(std::vector<std::ifstream>& dataFiles) {
+void ConwayClassifier::calcBoardSpecs(std::vector<std::ifstream*>& dataFiles) {
     int minX, maxX, minY, maxY;
     bool firstFile = true;
-    for (auto& is : dataFiles) {
+    for (auto is : dataFiles) {
         // for each file get first and second line and read in necessary data
         std::string firstLine, secLine;
-        std::getline(is, firstLine);
-        std::getline(is, secLine);
+        std::getline(*is, firstLine);
+        std::getline(*is, secLine);
         // calculate relative mins for given generation
         std::pair<int, int> minInfo = ConwayClassifier::readPos(firstLine);
         int tempMinX = minInfo.first;
@@ -79,7 +78,7 @@ void ConwayClassifier::calcBoardSpecs(std::vector<std::ifstream>& dataFiles) {
             if (tempMaxY > maxY)
                 maxY = tempMaxY;
         }
-        is.close(); // done with ifstream object now so free it
+        is->seekg(0, std::ios::beg); // reset ifstream for next use
     }
     this->x = minX;
     this->y = minY;
@@ -92,8 +91,8 @@ ConwayClassifier::readPos(const std::string& firstLine) const {
     std::istringstream posStream(firstLine);
     std::string posStr;
     posStream >> posStr >> posStr;
-    posStr = posStr.substr(posQualifierLen, posStr.size()
-            - posQualifierLen);
+    posStr = posStr.substr(this->posQualifierLen, posStr.length()
+            - this->posQualifierLen);
     std::pair<int, int> posPair(
             std::stoi(ConwayClassifier::split(posStr, ",", true)),
             std::stoi(ConwayClassifier::split(posStr, ",", false)));
@@ -117,8 +116,8 @@ std::string ConwayClassifier::split(const std::string& str,
     if (index != std::string::npos) {
         if (firstStr && index != 0)
             return str.substr(0, index);
-        else if (index != str.size() - 1)
-            return str.substr(index + 1, str.size() - index - 1);
+        else if (index != str.length() - 1)
+            return str.substr(index + 1, str.length() - index - 1);
     }
     return "";
 }
@@ -127,25 +126,34 @@ std::string ConwayClassifier::split(const std::string& str,
 // set cell as set cell is rather inefficient (too much calculation each time
 // when you should just be increasing index by 1 for every new char read)
 
-void ConwayClassifier::fillBoard(std::vector<std::ifstream>& dataFiles) {
+void ConwayClassifier::fillBoard(std::vector<std::ifstream*>& dataFiles) {
     int genNum = 0;
-    for (auto& is : dataFiles) {
+    for (auto is : dataFiles) {
         // get necessary info from header
         std::string firstLine, secLine;
-        std::getline(is, firstLine);
-        std::getline(is, secLine); // read line to toss it out as its not needed
+        std::getline(*is, firstLine);
+        std::getline(*is, secLine); // read line to toss it out as its not needed
+        std::cout << "firstLine: " << firstLine << std::endl;  // remove later
+        std::cout << "secLine: " << secLine << std::endl;  // remove later
+        /*
+         * For some stupid reason the firstLine and secLine vars are empty
+         * strings for the 20th file and onward
+         */
         std::pair<int, int> posInfo = ConwayClassifier::readPos(firstLine);
+        std::cout << "check" << std::endl;  // remove later
         // top left coords of this gen
         int currentX = posInfo.first;
         int currentY = posInfo.second;
         // read file char by char now that headers have been processed
         char c;
-        while (is.get(c)) {
+        while (is->get(c)) {
+            if (firstLine == "")
+                std::cout << c << " ";
             int repCount = 1;
             if (std::isdigit(c)) {
                 // subtract '0' char to convert c from ascii code to actual int
                 repCount = c - '0';
-                is.get(c); // now we have repCount get char to be repeated
+                is->get(c); // now we have repCount get char to be repeated
             }
             for (int i = 0; i < repCount; i++) {
                 if (c == 'o' || c == 'b') { // live/dead cell
@@ -165,7 +173,7 @@ void ConwayClassifier::fillBoard(std::vector<std::ifstream>& dataFiles) {
             }
         }
         // now done with ifstream object so close it
-        is.close();
+        is->close();
         genNum++;
     }
 }
@@ -240,6 +248,7 @@ void ConwayClassifier::printGameBoard(const int genNum, std::ostream& os,
         if (i - index + 1 % this->width == 0)
             os << std::endl;
     }
+    os << std::endl;
 }
 
 #endif /* CONWAY_CLASSIFIER_CPP */

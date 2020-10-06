@@ -11,7 +11,9 @@
  * To test the ConwayClassifier class
  */
 int main(int argc, char** argv) {
-    ConwayClassifer c("b124568_s2", 15);
+    ConwayClassifier c("b3457_s3", 1000);
+    c.printGameBoard(685);
+    std::cout << c.classification() << std::endl;
     // will check how it works by calling different public methods and
     // comparing it to the data
     return 0;

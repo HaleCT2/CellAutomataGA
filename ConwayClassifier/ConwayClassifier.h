@@ -14,8 +14,6 @@
 #include <utility>
 #include <fstream>
 
-const int posQualifierLen = 4;  // "pos=" length in rle header
-
 class ConwayClassifier {
 public:
     // constructor
@@ -37,20 +35,20 @@ public:
 
     // returns width and height as a pair
     std::pair<int, int> getDimensions() const;
-    
+
     // returns value of given cell
     bool getCellVal(const int gen, const int xCoord, const int yCoord) const;
-    
+
     // prints a given generation of the gameBoard to the given output stream
-    void printGameBoard(const int genNum, std::ostream& os = std::cout, 
-    const char onChar = '1', const char offChar = '0') const;
+    void printGameBoard(const int genNum, std::ostream& os = std::cout,
+            const char onChar = '1', const char offChar = '0') const;
 
 private:
     // in golly x is positive to the right and y is positive going DOWN NOT UP
     int x; // x-coordinate of top left corner
     int y; // y-coordinate of top left corner
-    int width;  // width measures length of board from x to right end of board
-    int height;  // height measures length of board from y to bottom end
+    int width; // width measures length of board from x to right end of board
+    int height; // height measures length of board from y to bottom end
     unsigned short int classNum; // represents classification num of this rule
     // the gameboard will be resized such that it covers the max range of the
     // game
@@ -66,42 +64,43 @@ private:
      */
     bool* gameBoard; // 1d array to represent 3d board for speed
     int boardSize; // size of the gameBoard array
+    const int posQualifierLen = 4;  // "pos=" length in rle header
 
     // takes vector of ifstream objects to figure out coords and dimensions
-    // when finished closes ifstreams
+    // when finished resets ifstreams
     // sets the x, y, width and height vars and dynamically resizes gameBoard
-    void calcBoardSpecs(std::vector<std::ifstream>& dataFiles);
-    
+    void calcBoardSpecs(std::vector<std::ifstream*>& dataFiles);
+
     // with the board specs calculated fill 3d array with data from files
     // then close inputStreams
-    void fillBoard(std::vector<std::ifstream>& dataFiles);
-    
+    void fillBoard(std::vector<std::ifstream*>& dataFiles);
+
     // takes path to the data directory and creates ifstream object for every
-    // file and adds it to a vector; then returns that vector
-    std::vector<std::ifstream> populateIStreamVec(const std::string& dataPath, 
-    const int genNum) const;
-    
+    // file and adds its address (pointer) to a vector; then returns that vector
+    std::vector<std::ifstream*> populateIStreamVec(const std::string& dataPath,
+            const int genNum) const;
+
     // splits a string based on the given delimiter, returns the before the
     // delimiter if firstStr parameter is true, returns after the delimiter
     // if firstStr is false
     // returns empty string if no split can be made
     // used to help parse .rle headers 
-    std::string split(const std::string& str, const std::string& delimiter, 
-    const bool firstStr) const;
-    
+    std::string split(const std::string& str, const std::string& delimiter,
+            const bool firstStr) const;
+
     // takes what would be the 3 values needed to get a value of a cell in 
     // Conway's game and calculates at what 1D index that cell data is stored
     // in the gameBoard instance variable
-    int get1DIndex(const int gen, const int xCoord, 
-    const int yCoord) const;
-    
+    int get1DIndex(const int gen, const int xCoord,
+            const int yCoord) const;
+
     // sets a given cell to a given value
-    void setCellVal(const int gen, const int xCoord, const int yCoord, 
-    const bool val);
-    
+    void setCellVal(const int gen, const int xCoord, const int yCoord,
+            const bool val);
+
     // malloc's the gameBoard instance var and sets every elt to 0
     void initializeGameBoard(const int genNum);
-    
+
     // takes the first line of an rle file and extracts the x and y values
     // for the position of the upper right corner of the data
     // return the x and y values as pair in that order
