@@ -66,9 +66,10 @@ private:
     int boardSize; // size of the gameBoard array
     const int posQualifierLen = 4;  // "pos=" length in rle header
     
-    void checkForClass1(const std::string& dataDirPath, const int genNum) {
-        
-    }
+    // checks to see if number of files in directory specified by dataDirPath
+    // is less than the genNum given. If so, it sets the classNum instance
+    // variable to 1.
+    void checkForClass1(const std::string& dataDirPath, const int genNum);
 
     // takes vector of ifstream objects to figure out coords and dimensions
     // when finished resets ifstreams
