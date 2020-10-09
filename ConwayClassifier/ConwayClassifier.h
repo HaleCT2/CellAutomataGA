@@ -65,6 +65,10 @@ private:
     bool* gameBoard; // 1d array to represent 3d board for speed
     int boardSize; // size of the gameBoard array
     const int posQualifierLen = 4;  // "pos=" length in rle header
+    
+    void checkForClass1(const std::string& dataDirPath, const int genNum) {
+        
+    }
 
     // takes vector of ifstream objects to figure out coords and dimensions
     // when finished resets ifstreams

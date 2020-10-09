@@ -13,20 +13,40 @@
 ConwayClassifier::ConwayClassifier(const std::string& dataDirPath,
         const int genNum) {
     this->classNum = 5; // initialize classNum
-    // not sure if I need two of these or not but I mess with fileStreams1 in
-    // calcBoardSpecs so I suspect I need them both
-    std::vector<std::ifstream*> fileStreams = // to be used to check hdrs
-            populateIStreamVec(dataDirPath, genNum);
-    // initialize rest of vars inside calcBoardSpecs and fillBoard
-    calcBoardSpecs(fileStreams);
-    // with necessary data grabbed now can initialize the array
-    initializeGameBoard(genNum);
-    fillBoard(fileStreams);
+
+    // Check and see if # of files in data path is less than genNum. If so
+    // set classNum to 1 and then skip the following method calls.
+    // Instead, initialize the instance variables so the API is fulfilled.
+    ConwayClassifier::checkForClass1(dataDirPath, genNum);
+    if (this->classNum != 1) {
+        std::vector<std::ifstream*> fileStreams = // to be used to check hdrs
+                populateIStreamVec(dataDirPath, genNum);
+        // initialize rest of vars inside calcBoardSpecs and fillBoard
+        calcBoardSpecs(fileStreams);
+        // with necessary data grabbed now can initialize the array
+        initializeGameBoard(genNum);
+        fillBoard(fileStreams);
+    }
+    else {
+        this->x = 0;
+        this->y = 0;
+        this->width = 0;
+        this->height = 0;
+        this->gameBoard = NULL;
+        this->boardSize = 0;
+    }
 }
 
 ConwayClassifier::~ConwayClassifier() {
     // need to deallocate array
     free(this->gameBoard);
+}
+
+void ConwayClassifier::checkForClass1(const std::string& dataDirPath, 
+        const int genNum) {
+    // ToDo
+    // getting the num of files in directory could depend on OS
+    // wait to implement until we are set on operating environment
 }
 
 std::vector<std::ifstream*>
@@ -133,14 +153,14 @@ void ConwayClassifier::fillBoard(std::vector<std::ifstream*>& dataFiles) {
         std::string firstLine, secLine;
         std::getline(*is, firstLine);
         std::getline(*is, secLine); // read line to toss it out as its not needed
-        std::cout << "firstLine: " << firstLine << std::endl;  // remove later
-        std::cout << "secLine: " << secLine << std::endl;  // remove later
+        std::cout << "firstLine: " << firstLine << std::endl; // remove later
+        std::cout << "secLine: " << secLine << std::endl; // remove later
         /*
          * For some stupid reason the firstLine and secLine vars are empty
          * strings for the 20th file and onward
          */
         std::pair<int, int> posInfo = ConwayClassifier::readPos(firstLine);
-        std::cout << "check" << std::endl;  // remove later
+        std::cout << "check" << std::endl; // remove later
         // top left coords of this gen
         int currentX = posInfo.first;
         int currentY = posInfo.second;
