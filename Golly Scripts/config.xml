@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<System>
+    <CellAutomata>
+        <StartingGrid>
+            <GridSize>100</GridSize>
+            <GridFillPerc>50</GridFillPerc>
+        </StartingGrid>
+        <NumGenerations>100</NumGenerations>
+    </CellAutomata>
+    <GeneticAlgo>
+        <PopulationSize>10</PopulationSize>
+        <MutationRate></MutationRate>
+        <CrossoverRate></CrossoverRate>
+        <ElitismPerc></ElitismPerc>
+        <FitnessFunction>
+            <Class2Weight></Class2Weight>
+            <Class3Weight></Class3Weight>
+        </FitnessFunction>
+    </GeneticAlgo>
+</System>
