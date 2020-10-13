@@ -72,6 +72,7 @@ numGenerations = g.getstring("Enter Number of CA Generations to Explore\n" +
                              "for Each Individual Rule in the Population:",
                              "10", "Number of Generations")
 
+# Placeholder Variable for GA Population Iteration
 popNum = 1
 
 # Loop Process for Each Individual Rule in the Population
@@ -96,8 +97,8 @@ for j in range(int(numPopulation)):
     if (os.path.isdir(fileLoc) is not True):
         os.mkdir(fileLoc)
 
-    # Creates "Population#" Folder within "Test Patterns"
-    fileLoc = g.getdir("app") + "Test Patterns\\" + "Pop" + str(popNum) + "\\"
+    # Creates "Pop_#" Folder within "Test Patterns"
+    fileLoc = g.getdir("app") + "Test Patterns\\" + "Pop_" + str(popNum) + "\\"
     if (os.path.isdir(fileLoc) is not True):
         os.mkdir(fileLoc)
 
