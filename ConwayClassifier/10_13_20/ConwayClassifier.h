@@ -35,6 +35,10 @@ public:
 
     // returns width and height as a pair
     std::pair<int, int> getDimensions() const;
+    
+    // returns min and max x-coords as pair for given gen if giveXCoords is true
+    // else returns min and max y-coords as pair for given gen
+    std::pair<int, int> getMinMax(const int gen, const bool giveXCoords) const;
 
     // returns value of given cell
     bool getCellVal(const int gen, const int xCoord, const int yCoord) const;
@@ -65,6 +69,10 @@ private:
     bool* gameBoard; // 1d array to represent 3d board for speed
     int boardSize; // size of the gameBoard array
     const int posQualifierLen = 4;  // "pos=" length in rle header
+    // saves the min and the max x-coord for every gen
+    std::vector<std::pair<int, int>> minMaxX;
+    // saves the min and the max y-coord for every gen
+    std::vector<std::pair<int, int>> minMaxY;
     
     // checks to see if number of files in directory specified by dataDirPath
     // is less than the genNum given. If so, it sets the classNum instance

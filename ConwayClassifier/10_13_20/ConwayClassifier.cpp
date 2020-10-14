@@ -78,6 +78,10 @@ void ConwayClassifier::calcBoardSpecs(std::vector<std::ifstream*>& dataFiles) {
         std::pair<int, int> maxPr = ConwayClassifier::readWidthHeight(secLine);
         int tempMaxX = tempMinX + maxPr.first;
         int tempMaxY = tempMinY + maxPr.second;
+        std::pair<int, int> xSpecs(tempMinX, tempMaxX);
+        std::pair<int, int> ySpecs(tempMinY, tempMaxY);
+        this->minMaxX.push_back(xSpecs);
+        this->minMaxY.push_back(ySpecs);
         if (firstFile) {
             // set max and min vars 
             minX = tempMinX;
@@ -230,6 +234,20 @@ bool ConwayClassifier::getCellVal(const int gen, const int xCoord,
         const int yCoord) const {
     // error handling if xCoord or yCoord is less than this->x/y?
     return this->gameBoard[ConwayClassifier::get1DIndex(gen, xCoord, yCoord)];
+}
+
+// this method copies the data from the instance variable to the pair object
+// to be returned as to not allow for a memory leak
+std::pair<int, int> 
+ConwayClassifier::getMinMax(const int gen, const bool giveXCoords) const {
+    if (giveXCoords) {
+        std::pair<int, int> rPair(this->minMaxX[gen]);
+        return rPair;
+    }
+    else {
+        std::pair<int, int> rPair(this->minMaxY[gen]);
+        return rPair;
+    }
 }
 
 void ConwayClassifier::setCellVal(const int gen, const int xCoord,
