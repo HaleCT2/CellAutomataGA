@@ -18,7 +18,7 @@
 using namespace std; 
 
 // Define population size
-#define POPULATION_SIZE 10
+#define POPULATION_SIZE 100
 
 // Possible characters to make up genome. Note that the genome is a binary
 // number represented as a string for simplicity.
@@ -26,7 +26,6 @@ const string GENES = "01";
 
 // Target string. Set to "b2s23" to find Conway's Game of Life
 const string TARGET_RULE_SET = "b2s23";
-
 /**
  * Random number generator method
  * 
@@ -49,15 +48,15 @@ int random_num(int start, int end) {
 string decode(string chromosome) {
     string ruleSet = "";
     ruleSet += "b";
-    for(int i = 0; i <= 9; i++) {
+    for(int i = 0; i < 9; i++) {
         if (chromosome[i] == '1') {
             ruleSet += to_string(i);
         }
     }
     ruleSet += "s";
-    for(int i = 10; i <= 19; i++) {
+    for(int i = 9; i < 18; i++) {
         if (chromosome[i] == '1') {
-            ruleSet += to_string(i - 10);
+            ruleSet += to_string(i - 9);
         }
     }
     return ruleSet;
@@ -70,13 +69,13 @@ string decode(string chromosome) {
  * @return string binary string
  */
 string encode(string ruleSet) {
-    string chromosome = "00000000000000000000";
+    string chromosome = "000000000000000000";
     bool survive = false;
     for(int i = 0; i < ruleSet.length(); i++) {
         if (ruleSet[i] != 'b' && ruleSet[i] != 's') {
             int index = ruleSet[i] - '0';
             if (survive) {
-                index += 10;
+                index += 9;
             }
             chromosome[index] = '1';
         } else if (ruleSet[i] == 's') {
@@ -237,13 +236,10 @@ int main() {
         population = new_generation; 
         cout<< "Generation: " << generation << "\t"; 
         rules = decode(population[0].chromosome);
-        if (rules.length() <= 21) {
-            rules += "\t";
-        }
-        if (rules.length() <= 14) {
+        if (rules.length() <= 13) {
             rules += "\t";
         }   
-        if (rules.length() <= 7) {
+        if (rules.length() <= 6) {
             rules += "\t";
         }
         cout<< "Rule Set: "<< rules << "\t"; 
@@ -251,13 +247,10 @@ int main() {
         generation++; 
     } 
     rules = decode(population[0].chromosome);
-    if (rules.length() <= 21) {
-        rules += "\t";
-    }
     if (rules.length() <= 13) {
         rules += "\t";
     }
-    if (rules.length() <= 7) {
+    if (rules.length() <= 6) {
         rules += "\t";
     }
     cout << "Generation: " << generation << "\t"; 
