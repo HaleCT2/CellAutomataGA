@@ -14,6 +14,7 @@
  */
 
 #include <bits/stdc++.h>
+#include <vector>
 
 using namespace std; 
 
@@ -38,6 +39,11 @@ int random_num(int start, int end) {
     int random_int = start+(rand()%range); 
     return random_int; 
 } 
+
+void dump() {
+    const char *command = "rm rule_sets*.txt";
+    system(command);
+}
 
 /**
  * Decodes binary strings into golly rule sets
@@ -148,7 +154,7 @@ Individual Individual::mate(Individual par2) {
     // value, if the random number is greater than 0.45 but less than 0.9, use
     // parent 2's value, and if it is greater than 0.9, mutate the gene (random
     // value).
-    for(int i = 0;i<len;i++) { 
+    for(int i = 0;i<len;i++) {
         float p = random_num(0, 100)/100.; 
         if(p < 0.45) {
             child_chromosome += chromosome[i]; 
@@ -157,7 +163,7 @@ Individual Individual::mate(Individual par2) {
         } else {
             child_chromosome += mutated_genes(); 
         }
-    } 
+    }
     return Individual(child_chromosome); 
 }; 
 
@@ -169,7 +175,7 @@ Individual Individual::mate(Individual par2) {
 int Individual::cal_fitness() { 
     int len = TARGET.size(); 
     int fitness = 0; 
-    // Fitness based on how many correct characters there are
+    // Fitness based on how many incorrect characters there are
     for(int i = 0;i<len;i++) { 
         if(chromosome[i] != TARGET[i]) {
             fitness++; 
@@ -192,6 +198,21 @@ bool operator<(const Individual &ind1, const Individual &ind2) {
 } 
 
 /**
+ * Method to save population of rule sets to a text file
+ * 
+ * @param population Rule sets to save
+ */
+void toFile(vector<Individual> population, int gen) {
+    ofstream out;
+    string str = "rule_sets" + to_string(gen) + ".txt"; 
+    out.open(str);
+    for(int i = 0; i < population.size(); i++) {
+        out << decode(population[i].chromosome) << endl;
+    }
+    out.close();
+}
+
+/**
  * Main method to drive GA
  * 
  * @return int exit code (0 if successful)
@@ -208,7 +229,8 @@ int main() {
         population.push_back(Individual(gnome)); 
     } 
     // Until target is found, crossover and mutate individuals
-    while(! found) { 
+    while(! found) {
+        toFile(population, generation);
         sort(population.begin(), population.end()); 
         if(population[0].fitness <= 0) { 
             found = true; 
@@ -256,4 +278,5 @@ int main() {
     cout << "Generation: " << generation << "\t"; 
     cout << "Rule Set: "<< rules << "\t"; 
     cout << "Fitness: "<< population[0].fitness << "\n";
+    // dump();
 }
