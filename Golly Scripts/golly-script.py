@@ -1,7 +1,7 @@
-# File:         golly-script-test.py
+# File:         golly-script.py
 # Author:       Carter Hale
 # Date Created: September 9, 2020
-# Last Updated: October 13, 2020
+# Last Updated: October 19, 2020
 
 # Golly doesn't offer standalone Library so the Module is instantiated
 # when the Executable is launched. Script can only be ran from within Golly.
@@ -10,6 +10,8 @@ import golly as g
 import random
 # OS Library used for File Management
 import os
+# Element Tree for XML Parsing
+import xml.etree.ElementTree as ET
 
 
 # -----------------------------------------------------------------------------
@@ -55,78 +57,68 @@ def compare_rle(fileName1, fileName2):
 # -----------------------------------------------------------------------------
 
 
-# Ask User Configuration Questions
-gridSize = g.getstring("Enter Side Length of Grid:", "100", "Grid Size")
-fillPerc = g.getstring("Enter Grid Fill Percentage:", "50", "Fill Percentage")
+# Retrieve Settings from XML
+tree = ET.parse('config.xml')
+root = tree.getroot()
+# Set Up XML Tree Roots
+rootCA = root.find("CellAutomata")
+rootGrid = rootCA.find("StartingGrid")
+# Determine Grid Properties
+gridSize = rootGrid.find("GridSize").text
+fillPerc = rootGrid.find("GridFillPerc").text
+# Determine Number of CA Generations to Simulate
+timeElapsed = rootCA.find("TimeElapsed").text
 
 customRule = g.getstring("If you wish to use a Specific Rule,\n" +
                          "enter it below with 'B0...8/S0...8' Notation.\n" +
                          "Otherwise, press 'OK' for Random Generation:",
                          "Random", "Specific Rule Set")
 
-numPopulation = g.getstring("Enter Population Size of Individual CA Rules:\n" +
-                            "(Note: Does not work with Specific Rule)",
-                            "1", "Population Size")
+# Create New Window and Fill X% of YxY Square Grid with Random Noise
+g.new("test-pattern")
+g.select([0, 0, int(gridSize), int(gridSize)])
+g.randfill(int(fillPerc))
 
-numGenerations = g.getstring("Enter Number of CA Generations to Explore\n" +
-                             "for Each Individual Rule in the Population:",
-                             "10", "Number of Generations")
+# Declare Algorithm and Rule
+g.setalgo("QuickLife")
 
-# Placeholder Variable for GA Population Iteration
-popNum = 1
+if (customRule == "Random"):
+    rule = make_rule()
+else:
+    rule = customRule.lower()
 
-# Loop Process for Each Individual Rule in the Population
-for j in range(int(numPopulation)):
-    # Create New Window and Fill X% of YxY Square Grid with Random Noise
-    g.new("test-pattern")
-    g.select([0, 0, int(gridSize), int(gridSize)])
-    g.randfill(int(fillPerc))
+g.setrule(rule)
 
-    # Declare Algorithm and Rule
-    g.setalgo("QuickLife")
+# Creates "Test Patterns" Folder within Directory if it does not Exist
+fileLoc = g.getdir("app") + "Test Patterns\\"
+if (os.path.isdir(fileLoc) is not True):
+    os.mkdir(fileLoc)
 
-    if (customRule == "Random"):
-        rule = make_rule()
-    else:
-        rule = customRule.lower()
+# Creates Subfolder specific to Rule Set to hold Generation Patterns
+fileLoc += rule.replace("/", "_") + "\\"
+if (os.path.isdir(fileLoc) is not True):
+    os.mkdir(fileLoc)
 
-    g.setrule(rule)
+# Prepare File Names for each Genereration's Pattern File
+fileNamePrefix = fileLoc + rule.replace("/", "_") + "_"
 
-    # Creates "Test Patterns" Folder within Directory if it does not Exist
-    fileLoc = g.getdir("app") + "Test Patterns\\"
-    if (os.path.isdir(fileLoc) is not True):
-        os.mkdir(fileLoc)
+# Loop and Save Patterns
+for i in range(int(timeElapsed) + 1):
+    # Stop Loop if Universe is Empty
+    if (g.empty()):
+        break
 
-    # Creates "Pop_#" Folder within "Test Patterns"
-    fileLoc = g.getdir("app") + "Test Patterns\\" + "Pop_" + str(popNum) + "\\"
-    if (os.path.isdir(fileLoc) is not True):
-        os.mkdir(fileLoc)
+    # Determine File Names
+    fileNameRLE = fileNamePrefix + str(i) + ".rle"
+    # Determine Previous File Names
+    fileNamePrevRLE = fileNamePrefix + str(i-1) + ".rle"
 
-    # Creates Subfolder specific to Rule Set to hold Generation Patterns
-    fileLoc += rule.replace("/", "_") + "\\"
-    if (os.path.isdir(fileLoc) is not True):
-        os.mkdir(fileLoc)
+    g.save(fileNameRLE, "rle")
+    # Compare Previous Generation to Determine Class I Systems
+    if (i > 0 and compare_rle(fileNameRLE, fileNamePrevRLE)):
+        break
 
-    # Prepare File Names for each Genereration's Pattern File
-    fileNamePrefix = fileLoc + rule.replace("/", "_") + "_"
-
-    # Loop and Save Patterns
-    for i in range(int(numGenerations) + 1):
-        # Stop Loop if Universe is Empty
-        if (g.empty()):
-            break
-
-        # Determine File Names
-        fileNameRLE = fileNamePrefix + str(i) + ".rle"
-        # Determine Previous File Names
-        fileNamePrevRLE = fileNamePrefix + str(i-1) + ".rle"
-
-        g.save(fileNameRLE, "rle")
-        # Compare Previous Generation to Determine Class I Systems
-        if (i > 0 and compare_rle(fileNameRLE, fileNamePrevRLE)):
-            break
-
-        g.run(1)
+    g.run(1)
 
 # Prepare for Viewing
 g.fit()

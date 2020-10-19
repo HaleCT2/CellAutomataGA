@@ -5,7 +5,7 @@
             <GridSize>100</GridSize>
             <GridFillPerc>50</GridFillPerc>
         </StartingGrid>
-        <NumGenerations>100</NumGenerations>
+        <TimeElapsed>100</TimeElapsed>
     </CellAutomata>
     <GeneticAlgo>
         <PopulationSize>10</PopulationSize>
@@ -17,4 +17,7 @@
             <Class3Weight></Class3Weight>
         </FitnessFunction>
     </GeneticAlgo>
+    <FileLocations>
+        <GollyOutput></GollyOutput>
+    </FileLocations>
 </System>
