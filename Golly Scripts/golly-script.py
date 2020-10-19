@@ -62,64 +62,76 @@ tree = ET.parse('config.xml')
 root = tree.getroot()
 # Set Up XML Tree Roots
 rootCA = root.find("CellAutomata")
+rootGA = root.find("GeneticAlgo")
 rootGrid = rootCA.find("StartingGrid")
 # Determine Grid Properties
 gridSize = rootGrid.find("GridSize").text
 fillPerc = rootGrid.find("GridFillPerc").text
-# Determine Number of CA Generations to Simulate
+# Determine Number of CA Generations and the CA Population
 timeElapsed = rootCA.find("TimeElapsed").text
+numPopulation = rootGA.find("PopulationSize").text
+
+currentGen = rootGA.find("CurrentGeneration").text
 
 customRule = g.getstring("If you wish to use a Specific Rule,\n" +
                          "enter it below with 'B0...8/S0...8' Notation.\n" +
                          "Otherwise, press 'OK' for Random Generation:",
                          "Random", "Specific Rule Set")
 
-# Create New Window and Fill X% of YxY Square Grid with Random Noise
-g.new("test-pattern")
-g.select([0, 0, int(gridSize), int(gridSize)])
-g.randfill(int(fillPerc))
-
-# Declare Algorithm and Rule
-g.setalgo("QuickLife")
-
-if (customRule == "Random"):
-    rule = make_rule()
-else:
-    rule = customRule.lower()
-
-g.setrule(rule)
-
-# Creates "Test Patterns" Folder within Directory if it does not Exist
-fileLoc = g.getdir("app") + "Test Patterns\\"
+# Creates "GeneticAlgorithm" Folder within Directory if it does not Exist
+fileLoc = g.getdir("app") + "GeneticAlgorithm\\"
 if (os.path.isdir(fileLoc) is not True):
     os.mkdir(fileLoc)
 
-# Creates Subfolder specific to Rule Set to hold Generation Patterns
-fileLoc += rule.replace("/", "_") + "\\"
+# Creates "Generation_#" Folder within "GeneticAlgorithm"
+generationDir = "GeneticAlgorithm\\" + "Generation_" + str(currentGen) + "\\"
+fileLoc = g.getdir("app") + generationDir
 if (os.path.isdir(fileLoc) is not True):
     os.mkdir(fileLoc)
 
-# Prepare File Names for each Genereration's Pattern File
-fileNamePrefix = fileLoc + rule.replace("/", "_") + "_"
+for j in range(int(numPopulation)):
+    # Create New Window and Fill X% of YxY Square Grid with Random Noise
+    g.new("test-pattern")
+    g.select([0, 0, int(gridSize), int(gridSize)])
+    g.randfill(int(fillPerc))
 
-# Loop and Save Patterns
-for i in range(int(timeElapsed) + 1):
-    # Stop Loop if Universe is Empty
-    if (g.empty()):
-        break
+    # Declare Algorithm and Rule
+    g.setalgo("QuickLife")
 
-    # Determine File Names
-    fileNameRLE = fileNamePrefix + str(i) + ".rle"
-    # Determine Previous File Names
-    fileNamePrevRLE = fileNamePrefix + str(i-1) + ".rle"
+    if (customRule == "Random"):
+        rule = make_rule()
+    else:
+        rule = customRule.lower()
 
-    g.save(fileNameRLE, "rle")
-    # Compare Previous Generation to Determine Class I Systems
-    if (i > 0 and compare_rle(fileNameRLE, fileNamePrevRLE)):
-        break
+    g.setrule(rule)
 
-    g.run(1)
+    # Set Directory Back to Parent Folder
+    fileLoc = g.getdir("app") + generationDir
+    # Creates Subfolder specific to Rule Set to hold Generation Patterns
+    fileLoc += rule.replace("/", "_") + "\\"
+    if (os.path.isdir(fileLoc) is not True):
+        os.mkdir(fileLoc)
 
-# Prepare for Viewing
-g.fit()
-g.setcursor("Select")
+    # Prepare File Names for each Genereration's Pattern File
+    fileNamePrefix = fileLoc + rule.replace("/", "_") + "_"
+
+    # Loop and Save Patterns
+    for i in range(int(timeElapsed) + 1):
+        # Stop Loop if Universe is Empty
+        if (g.empty()):
+            break
+
+        # Determine File Names
+        fileNameRLE = fileNamePrefix + str(i) + ".rle"
+        # Determine Previous File Names
+        fileNamePrevRLE = fileNamePrefix + str(i-1) + ".rle"
+
+        g.save(fileNameRLE, "rle")
+        # Compare Previous Generation to Determine Class I Systems
+        if (i > 0 and compare_rle(fileNameRLE, fileNamePrevRLE)):
+            break
+
+        g.run(1)
+
+# Close
+g.doevent("key q cmd")

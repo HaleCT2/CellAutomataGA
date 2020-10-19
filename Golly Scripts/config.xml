@@ -5,9 +5,10 @@
             <GridSize>100</GridSize>
             <GridFillPerc>50</GridFillPerc>
         </StartingGrid>
-        <TimeElapsed>100</TimeElapsed>
+        <TimeElapsed>10</TimeElapsed>
     </CellAutomata>
     <GeneticAlgo>
+        <CurrentGeneration>0</CurrentGeneration>
         <PopulationSize>10</PopulationSize>
         <MutationRate></MutationRate>
         <CrossoverRate></CrossoverRate>
