@@ -78,13 +78,13 @@ customRule = g.getstring("If you wish to use a Specific Rule,\n" +
                          "Otherwise, press 'OK' for Random Generation:",
                          "Random", "Specific Rule Set")
 
-# Creates "GeneticAlgorithm" Folder within Directory if it does not Exist
-fileLoc = g.getdir("app") + "GeneticAlgorithm\\"
+# Creates "Patterns" Folder within Directory if it does not Exist
+fileLoc = g.getdir("app") + "Patterns\\"
 if (os.path.isdir(fileLoc) is not True):
     os.mkdir(fileLoc)
 
-# Creates "Generation_#" Folder within "GeneticAlgorithm"
-generationDir = "GeneticAlgorithm\\" + "Generation_" + str(currentGen) + "\\"
+# Creates "Generation_#" Folder within "Patterns"
+generationDir = "Patterns\\" + "Generation_" + str(currentGen) + "\\"
 fileLoc = g.getdir("app") + generationDir
 if (os.path.isdir(fileLoc) is not True):
     os.mkdir(fileLoc)
