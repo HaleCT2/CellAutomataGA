@@ -1,49 +1,15 @@
 # File:         golly-script.py
 # Author:       Carter Hale
 # Date Created: September 9, 2020
-# Last Updated: October 19, 2020
+# Last Updated: October 21, 2020
 
 # Golly doesn't offer standalone Library so the Module is instantiated
 # when the Executable is launched. Script can only be ran from within Golly.
 import golly as g
-# Random Library used for Rule Generation
-import random
 # OS Library used for File Management
 import os
 # Element Tree for XML Parsing
 import xml.etree.ElementTree as ET
-
-
-# -----------------------------------------------------------------------------
-# Function to create Random Rules
-def make_rule():
-    # Determine Number of Rules
-    numBorn = random.randrange(0, 9)
-    numSurvive = random.randrange(0, 9)
-
-    # Randomly Generate Birth Conditions
-    bornRule = ''
-    for i in range(numBorn):
-        num = random.randrange(1, 9)
-        if(str(num) not in bornRule):
-            bornRule += str(num)
-
-    # Sort Numbers for Rule Notation
-    bornRule = ''.join(sorted(bornRule))
-
-    # Randomly Generate Survival Conditions
-    surviveRule = ''
-    for j in range(numSurvive):
-        num = random.randrange(1, 9)
-        if(str(num) not in surviveRule):
-            surviveRule += str(num)
-
-    surviveRule = ''.join(sorted(surviveRule))
-
-    # Return Rule after concatenating Strings
-    rule = "b" + bornRule + "/s" + surviveRule
-    return rule
-# -----------------------------------------------------------------------------
 
 
 # -----------------------------------------------------------------------------
@@ -57,6 +23,7 @@ def compare_rle(fileName1, fileName2):
 # -----------------------------------------------------------------------------
 
 
+# -----------------------------------------------------------------------------
 # Retrieve Settings from XML
 tree = ET.parse('config.xml')
 root = tree.getroot()
@@ -71,23 +38,27 @@ fillPerc = rootGrid.find("GridFillPerc").text
 timeElapsed = rootCA.find("TimeElapsed").text
 numPopulation = rootGA.find("PopulationSize").text
 
+# Check for Current GA Generation
 currentGen = rootGA.find("CurrentGeneration").text
+# -----------------------------------------------------------------------------
 
-customRule = g.getstring("If you wish to use a Specific Rule,\n" +
-                         "enter it below with 'B0...8/S0...8' Notation.\n" +
-                         "Otherwise, press 'OK' for Random Generation:",
-                         "Random", "Specific Rule Set")
 
-# Creates "Patterns" Folder within Directory if it does not Exist
-fileLoc = g.getdir("app") + "Patterns\\"
+# -----------------------------------------------------------------------------
+# Creates "GeneticAlgorithm" Folder within Directory if it does not Exist
+fileLoc = g.getdir("app") + "GeneticAlgorithm\\"
 if (os.path.isdir(fileLoc) is not True):
     os.mkdir(fileLoc)
 
-# Creates "Generation_#" Folder within "Patterns"
-generationDir = "Patterns\\" + "Generation_" + str(currentGen) + "\\"
+# Creates "Generation_#" Folder within "GeneticAlgorithm"
+generationDir = "GeneticAlgorithm\\" + "Generation_" + str(currentGen) + "\\"
 fileLoc = g.getdir("app") + generationDir
 if (os.path.isdir(fileLoc) is not True):
     os.mkdir(fileLoc)
+# -----------------------------------------------------------------------------
+
+# Open Current Generation's Rule Sets to Parse
+rulesFileName = "rule_sets" + str(currentGen) + ".txt"
+genRules = open(rulesFileName, 'r')
 
 for j in range(int(numPopulation)):
     # Create New Window and Fill X% of YxY Square Grid with Random Noise
@@ -98,11 +69,8 @@ for j in range(int(numPopulation)):
     # Declare Algorithm and Rule
     g.setalgo("QuickLife")
 
-    if (customRule == "Random"):
-        rule = make_rule()
-    else:
-        rule = customRule.lower()
-
+    # Read In Rule Set from File
+    rule = genRules.readline().strip()
     g.setrule(rule)
 
     # Set Directory Back to Parent Folder

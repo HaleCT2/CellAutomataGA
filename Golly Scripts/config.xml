@@ -19,6 +19,6 @@
         </FitnessFunction>
     </GeneticAlgo>
     <FileLocations>
-        <GollyOutput></GollyOutput>
+        <GollyOutput>GeneticAlgorithm\Generation_</GollyOutput>
     </FileLocations>
 </System>

@@ -59,7 +59,7 @@ string decode(string chromosome) {
             ruleSet += to_string(i);
         }
     }
-    ruleSet += "s";
+    ruleSet += "/s";
     for(int i = 9; i < 18; i++) {
         if (chromosome[i] == '1') {
             ruleSet += to_string(i - 9);
