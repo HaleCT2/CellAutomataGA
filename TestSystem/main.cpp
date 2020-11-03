@@ -17,11 +17,14 @@
 #include <vector>
 #include <unistd.h>
 #include <sys/wait.h>
+#include "ConwayClassifier.h"
 
 using namespace std; 
 
 // Define population size
 #define POPULATION_SIZE 100
+
+int generation = 0; 
 
 // Possible characters to make up genome. Note that the genome is a binary
 // number represented as a string for simplicity.
@@ -174,7 +177,13 @@ Individual Individual::mate(Individual par2) {
  * 
  * @return int fitness number
  */
-int Individual::cal_fitness() { 
+int Individual::cal_fitness() {
+    // How do we get the generation number in here neatly? I made it a global variable but I know that's bad
+    string filePath = "Generation_" + to_string(generation);
+    ConwayClassifier c(filePath + "/" + decode(this.chromosome), 100);
+    
+    // We can start playing with the fitness function here
+    
     int len = TARGET.size(); 
     int fitness = 0; 
     // Fitness based on how many incorrect characters there are
@@ -245,7 +254,6 @@ int main() {
     // Create initial population
     srand((unsigned)(time(0))); 
     string rules;
-    int generation = 0; 
     vector<Individual> population; 
     bool found = false;
     generatePatterns(true); // Reset XML
