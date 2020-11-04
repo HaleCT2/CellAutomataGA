@@ -17,6 +17,8 @@
 #include <vector>
 #include <unistd.h>
 #include <sys/wait.h>
+#include <algorithm>
+#include <string>
 #include "ConwayClassifier.h"
 
 using namespace std; 
@@ -180,7 +182,10 @@ Individual Individual::mate(Individual par2) {
 int Individual::cal_fitness() {
     // How do we get the generation number in here neatly? I made it a global variable but I know that's bad
     string filePath = "Generation_" + to_string(generation);
-    ConwayClassifier c(filePath + "/" + decode(this.chromosome), 100);
+    // Rename Decoded Chromosome
+    string fileName = decode(this->chromosome);
+    std::replace(fileName.begin(), fileName.end(), '/', '_');
+    ConwayClassifier c(filePath + "/" + fileName, 10);
     
     // We can start playing with the fitness function here
     
