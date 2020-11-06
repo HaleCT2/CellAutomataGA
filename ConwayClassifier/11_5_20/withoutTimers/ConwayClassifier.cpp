@@ -6,22 +6,20 @@
 #include <vector>
 #include <utility>
 #include <fstream>
-#include <cstdlib>
 #include <filesystem>
 #include <thread>
 #include <ctype.h>
-#include <chrono>  // ToDo: remove once done time testing
 #include "ConwayClassifier.h"
 
 ConwayClassifier::ConwayClassifier(const std::string& dataDirPath,
         const int genNum, const int maxThrNum) {
     this->generationCount = genNum + 1;
-    this->rule = ConwayClassifier::extractRule(dataDirPath); // ToDo change to this->
+    this->rule = this->extractRule(dataDirPath);
     this->classNum = 5; // initialize classNum
     // Check and see if # of files in data path is less than genNum. If so
     // set classNum to 1 and then skip the following method calls.
     // Instead, initialize the instance variables so the API is fulfilled.
-    ConwayClassifier::checkForClass1(dataDirPath, genNum); // ToDo change to this->
+    this->checkForClass1(dataDirPath, genNum);
     if (this->classNum != 1) {
         std::vector<std::ifstream*> fileStreams = // to be used to check hdrs
                 populateIStreamVec(dataDirPath, genNum);
@@ -31,7 +29,7 @@ ConwayClassifier::ConwayClassifier(const std::string& dataDirPath,
         initializeGameBoard(genNum);
         fillBoard(fileStreams, maxThrNum);
         // now done with file streams so deallocate them
-        ConwayClassifier::deallocateIfstreams(fileStreams); // ToDo change to this->
+        this->deallocateIfstreams(fileStreams);
     } else {
         this->x = 0;
         this->y = 0;
@@ -107,10 +105,10 @@ void ConwayClassifier::calcBoardSpecs(std::vector<std::ifstream*>& dataFiles) {
         std::getline(*is, firstLine);
         std::getline(*is, secLine);
         // calculate relative mins for given generation
-        std::pair<int, int> minInfo = ConwayClassifier::readPos(firstLine); // ToDo change to this->
+        std::pair<int, int> minInfo = this->readPos(firstLine);
         int tempMinX = minInfo.first;
         int tempMinY = minInfo.second;
-        std::pair<int, int> maxPr = ConwayClassifier::readWidthHeight(secLine); // ToDo change to this->
+        std::pair<int, int> maxPr = this->readWidthHeight(secLine);
         int tempMaxX = tempMinX + maxPr.first;
         int tempMaxY = tempMinY + maxPr.second;
         std::pair<int, int> xSpecs(tempMinX, tempMaxX);
@@ -151,8 +149,8 @@ ConwayClassifier::readPos(const std::string& firstLine) const {
     posStr = posStr.substr(this->posQualifierLen, posStr.length()
             - this->posQualifierLen);
     std::pair<int, int> posPair(
-            std::stoi(ConwayClassifier::split(posStr, ",", true)), // ToDo change to this->
-            std::stoi(ConwayClassifier::split(posStr, ",", false))); // ToDo change to this->
+            std::stoi(this->split(posStr, ",", true)),
+            std::stoi(this->split(posStr, ",", false)));
     return posPair;
 }
 
@@ -161,8 +159,8 @@ ConwayClassifier::readWidthHeight(const std::string& secLine) const {
     std::istringstream lineStream(secLine);
     std::string xInfo, yInfo;
     lineStream >> xInfo >> xInfo >> xInfo >> yInfo >> yInfo >> yInfo;
-    std::pair<int, int> WHPair(std::stoi(ConwayClassifier::split(xInfo, // ToDo change to this->
-            ",", true)), std::stoi(ConwayClassifier::split(yInfo, // ToDo change to this->
+    std::pair<int, int> WHPair(std::stoi(this->split(xInfo,
+            ",", true)), std::stoi(this->split(yInfo,
             ",", true)));
     return WHPair;
 }
@@ -214,7 +212,7 @@ void ConwayClassifier::fillGen(std::vector<std::ifstream*>& dataStreams,
         std::string firstLine, secLine;
         std::getline(*is, firstLine);
         std::getline(*is, secLine); // read line to toss it out, its not needed
-        std::pair<int, int> posInfo = ConwayClassifier::readPos(firstLine); // ToDo: change to this->funcCall
+        std::pair<int, int> posInfo = this->readPos(firstLine);
         // top left coords of this gen
         int currentX = posInfo.first;
         int currentY = posInfo.second;
@@ -234,7 +232,7 @@ void ConwayClassifier::fillGen(std::vector<std::ifstream*>& dataStreams,
             for (int i = 0; i < repCount; i++) {
                 if (c == 'o' || c == 'b') { // live/dead cell
                     if (c == 'o') { // set cell alive
-                        ConwayClassifier::setCellVal(genNum, currentX, // ToDo change to this->
+                        this->setCellVal(genNum, currentX,
                                 currentY, true);
                     }
                     // don't need to set cell dead as all cells initialized dead
@@ -301,7 +299,7 @@ std::pair<int, int> ConwayClassifier::getDimensions() const {
 bool ConwayClassifier::getCellVal(const int gen, const int xCoord,
         const int yCoord) const {
     // error handling if xCoord or yCoord is less than this->x/y?
-    return this->gameBoard[ConwayClassifier::get1DIndex(gen, xCoord, yCoord)]; // ToDo change to this->
+    return this->gameBoard[this->get1DIndex(gen, xCoord, yCoord)];
 }
 
 std::pair<int, int>
@@ -314,7 +312,7 @@ ConwayClassifier::getMinMax(const int gen, const bool giveXCoords) const {
 
 void ConwayClassifier::setCellVal(const int gen, const int xCoord,
         const int yCoord, const bool val) {
-    this->gameBoard[ConwayClassifier::get1DIndex(gen, xCoord, yCoord)] = val; // ToDo change to this->
+    this->gameBoard[this->get1DIndex(gen, xCoord, yCoord)] = val;
 }
 
 void ConwayClassifier::initializeGameBoard(const int genNum) {
@@ -333,7 +331,7 @@ void ConwayClassifier::printGameBoard(const int genNum, std::ostream& os,
         const char onChar, const char offChar) const {
     // get index of beginning of gen by giving top 
     // left corner coords to get1DIndex
-    int index = ConwayClassifier::get1DIndex(genNum, this->x, this->y); // ToDo change to this
+    int index = this->get1DIndex(genNum, this->x, this->y);
     int genLen = this->width * this->height;
     // go until next gen
     for (int i = index; i < index + genLen; i++) {
