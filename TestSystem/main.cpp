@@ -179,16 +179,32 @@ Individual Individual::mate(Individual par2) {
  * 
  * @return int fitness number
  */
-int Individual::cal_fitness() {
-    // How do we get the generation number in here neatly? I made it a global variable but I know that's bad
-    string filePath = "Generation_" + to_string(generation);
-    // Rename Decoded Chromosome
-    string fileName = decode(this->chromosome);
-    std::replace(fileName.begin(), fileName.end(), '/', '_');
-    ConwayClassifier c(filePath + "/" + fileName, 10);
+// int Individual::cal_fitness() {
+//     // How do we get the generation number in here neatly? I made it a global variable but I know that's bad
+//     string filePath = "Generation_" + to_string(generation);
+//     // Rename Decoded Chromosome
+//     string fileName = decode(this->chromosome);
+//     std::replace(fileName.begin(), fileName.end(), '/', '_');
+//     ConwayClassifier c(filePath + "/" + fileName, 10);
     
-    // We can start playing with the fitness function here
+//     // We can start playing with the fitness function here
     
+//     int len = TARGET.size(); 
+//     int fitness = 0; 
+//     // Fitness based on how many incorrect characters there are
+//     for(int i = 0;i<len;i++) { 
+//         if(chromosome[i] != TARGET[i]) {
+//             fitness++; 
+//         }
+//     } 
+//     return fitness;     
+// }; 
+/**
+ * Calculates the fitness of the Individual
+ * 
+ * @return int fitness number
+ */
+int Individual::cal_fitness() { 
     int len = TARGET.size(); 
     int fitness = 0; 
     // Fitness based on how many incorrect characters there are
@@ -237,13 +253,13 @@ void generatePatterns(bool reset) {
     const int pid= fork();
     if (reset) {
         if (pid== 0) {
-            execlp("python", "python", "resetXML.py", nullptr);
+            execlp("python2", "python2", "resetXML.py", nullptr);
         } else {
             waitpid(pid, nullptr, 0);
         }
     } else {
         if (pid== 0) {
-            execlp("./Golly.exe", "./Golly.exe", "golly-script.py", nullptr);
+            execlp("golly", "golly", "golly-script.py", nullptr);
         } else {
             waitpid(pid, nullptr, 0);
         }

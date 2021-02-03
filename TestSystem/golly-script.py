@@ -1,7 +1,7 @@
 # File:         golly-script.py
 # Author:       Carter Hale
 # Date Created: September 9, 2020
-# Last Updated: October 21, 2020
+# Last Updated: February 3, 2021
 
 # Golly doesn't offer standalone Library so the Module is instantiated
 # when the Executable is launched. Script can only be ran from within Golly.
@@ -45,13 +45,13 @@ currentGen = rootGA.find("CurrentGeneration").text
 
 # -----------------------------------------------------------------------------
 # Creates "Simulation" Folder within Directory if it does not Exist
-fileLoc = g.getdir("app") + "Simulation\\"
+fileLoc = g.getdir("rules") + "Simulation/"
 if (os.path.isdir(fileLoc) is not True):
     os.mkdir(fileLoc)
 
 # Creates "Generation_#" Folder within "Simulation"
-generationDir = "Simulation\\" + "Generation_" + str(currentGen) + "\\"
-fileLoc = g.getdir("app") + generationDir
+generationDir = "Simulation/" + "Generation_" + str(currentGen) + "/"
+fileLoc = g.getdir("rules") + generationDir
 if (os.path.isdir(fileLoc) is not True):
     os.mkdir(fileLoc)
 # -----------------------------------------------------------------------------
@@ -79,9 +79,9 @@ for j in range(int(numPopulation)):
     g.setrule(rule)
 
     # Set Directory Back to Parent Folder
-    fileLoc = g.getdir("app") + generationDir
+    fileLoc = g.getdir("rules") + generationDir
     # Creates Subfolder specific to Rule Set to hold Generation Patterns
-    fileLoc += rule.replace("/", "_") + "\\"
+    fileLoc += rule.replace("/", "_") + "/"
     if (os.path.isdir(fileLoc) is not True):
         os.mkdir(fileLoc)
 

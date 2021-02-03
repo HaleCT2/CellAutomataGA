@@ -1,7 +1,7 @@
 # File:         golly-script-test.py
 # Author:       Carter Hale
 # Date Created: September 9, 2020
-# Last Updated: October 1, 2020
+# Last Updated: February 3, 2021
 
 # Golly doesn't offer standalone Library so the Module is instantiated
 # when the Executable is launched. Script can only be ran from within Golly.
@@ -127,12 +127,12 @@ for j in range(int(numPopulation)):
     g.setrule(rule)
 
     # Creates "Test Patterns" Folder within Directory if it does not Exist
-    fileLoc = g.getdir("app") + "Test Patterns\\"
+    fileLoc = g.getdir("rules") + "Test Patterns/"
     if (os.path.isdir(fileLoc) is not True):
         os.mkdir(fileLoc)
 
     # Creates Subfolder specific to Rule Set to hold Generation Patterns
-    fileLoc += rule.replace("/", "_") + "\\"
+    fileLoc += rule.replace("/", "_") + "/"
     if (os.path.isdir(fileLoc) is not True):
         os.mkdir(fileLoc)
 
