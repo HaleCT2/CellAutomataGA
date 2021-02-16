@@ -144,8 +144,7 @@ public:
  * @param chromosome chromosome to be associated with individual
  */
 Individual::Individual(string chromosome) { 
-    this->chromosome = chromosome; 
-    fitness = cal_fitness();  
+    this->chromosome = chromosome;
 }; 
 
 /**
@@ -180,13 +179,15 @@ Individual Individual::mate(Individual par2) {
  * @return int fitness number
  */
 int Individual::cal_fitness() {
-    // // How do we get the generation number in here neatly? I made it a global variable but I know that's bad
-    // string filePath = "Generation_" + to_string(generation);
-    // // Rename Decoded Chromosome
-    // string fileName = decode(this->chromosome);
-    // std::replace(fileName.begin(), fileName.end(), '/', '_');
-    // ConwayClassifier c(filePath + "/" + fileName, 10);
-        
+    // FilePath is a constant on the Virtual Machine
+    string filePath = "/home/CellAutomataGA/Desktop/Golly Patterns/Simulation/Generation_" + to_string(generation);
+    // Rename Decoded Chromosome
+    string fileName = decode(this->chromosome);
+    std::replace(fileName.begin(), fileName.end(), '/', '_');
+    // Create CC Object 
+    ConwayClassifier c(filePath + "/" + fileName, 10);
+    
+    // OLD FITNESS METRIC WHILE TROUBLESHOOTING WITH ConwayClassifier
     int len = TARGET.size(); 
     int fitness = 0; 
     // Fitness based on how many incorrect characters there are
@@ -230,6 +231,7 @@ void toFile(vector<Individual> population, int gen) {
  * Method to Fork and Run Golly or Fork and Run a 
  * Python Script that resets 'CurrentGeneration' field
  * 
+ * @param reset To determine if Configuration XML needs reset
  */
 void generatePatterns(bool reset) {
     const int pid= fork();
@@ -245,6 +247,18 @@ void generatePatterns(bool reset) {
         } else {
             waitpid(pid, nullptr, 0);
         }
+    }
+}
+
+/**
+ * Method to Iterate over Population and Calculate Fitness
+ * after Simulation.
+ * 
+ * @param population Vector of Individuals
+ */
+void cal_PopFitness(vector<Individual> &population) {
+    for(Individual& i : population) {
+        i.fitness = i.cal_fitness();
     }
 }
 
@@ -268,8 +282,9 @@ int main() {
     while(!found) {
         toFile(population, generation);
         generatePatterns(false);
+        cal_PopFitness(population);
 
-        sort(population.begin(), population.end()); 
+        sort(population.begin(), population.end());
         if(population[0].fitness <= 0) { 
             found = true; 
             break; 
@@ -292,7 +307,8 @@ int main() {
             Individual parent2 = population[r]; 
             Individual offspring = parent1.mate(parent2); 
             new_generation.push_back(offspring);  
-        } 
+        }
+        cal_PopFitness(new_generation); 
         population = new_generation; 
         cout<< "Generation: " << generation << "\t"; 
         rules = decode(population[0].chromosome);
