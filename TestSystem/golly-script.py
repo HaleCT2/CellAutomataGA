@@ -1,7 +1,7 @@
 # File:         golly-script.py
 # Author:       Carter Hale
 # Date Created: September 9, 2020
-# Last Updated: February 3, 2021
+# Last Updated: February 22, 2021
 
 # Golly doesn't offer standalone Library so the Module is instantiated
 # when the Executable is launched. Script can only be ran from within Golly.
