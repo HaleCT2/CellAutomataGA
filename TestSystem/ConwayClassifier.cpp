@@ -61,8 +61,10 @@ std::vector<std::ifstream*>
 ConwayClassifier::populateIStreamVec(const std::string& dataPath,
         const int genNum) const {
     std::vector<std::ifstream*> rVec;
+    // Get Ruleset from Entire Filepath
+    std::string ruleset = dataPath.substr(dataPath.find_last_of("/\\") + 1);
     for (int i = 0; i <= genNum; i++) {
-        std::string path = dataPath + "/" + dataPath + "_" +
+        std::string path = dataPath + "/" + ruleset+ "_" +
                 std::to_string(i) + ".rle";
         std::ifstream *is = new std::ifstream(path);
         rVec.push_back(is);

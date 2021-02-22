@@ -1,25 +1,36 @@
 /* 
  * File:   main.cpp
- * Author: Owen Hichens
+ * Author: Owen Hichens, Carter Hale
  * Based on Genetic Algorithm found at
  * https://www.geeksforgeeks.org/genetic-algorithms/
  *
- * Created on October 14, 2020, 3:03 PM
+ * Created on October 14, 2020
+ * Last Updated on February 22, 2021
  * 
  * TO DO:
  * - Get Golly results as input
- * - Output each generation to be read into Golly
  * - Change fitness function so instead of finding target, find interesting 
  *   systems.
  */
 
 #include <bits/stdc++.h>
 #include <vector>
+#include <unistd.h>
+#include <sys/wait.h>
+#include <algorithm>
+#include <string>
+#include "ConwayClassifier.h"
+#include "rapidxml.hpp"
 
 using namespace std; 
+using namespace rapidxml;
 
-// Define population size
-#define POPULATION_SIZE 100
+int generation = 0; 
+int populationSize;
+int elitismPercent;
+int crossoverRate;
+int mutationRate;
+int timeElapsed;
 
 // Possible characters to make up genome. Note that the genome is a binary
 // number represented as a string for simplicity.
@@ -27,6 +38,7 @@ const string GENES = "01";
 
 // Target string. Set to "b2s23" to find Conway's Game of Life
 const string TARGET_RULE_SET = "b2s23";
+
 /**
  * Random number generator method
  * 
@@ -40,6 +52,9 @@ int random_num(int start, int end) {
     return random_int; 
 } 
 
+/**
+ * Dump created Rule Set files
+ */
 void dump() {
     const char *command = "rm rule_sets*.txt";
     system(command);
@@ -138,7 +153,6 @@ public:
  */
 Individual::Individual(string chromosome) { 
     this->chromosome = chromosome; 
-    fitness = cal_fitness();  
 }; 
 
 /**
@@ -150,15 +164,12 @@ Individual::Individual(string chromosome) {
 Individual Individual::mate(Individual par2) { 
     string child_chromosome = ""; 
     int len = chromosome.size(); 
-    // For each character, if random number is less than 0.45, use parent 1's
-    // value, if the random number is greater than 0.45 but less than 0.9, use
-    // parent 2's value, and if it is greater than 0.9, mutate the gene (random
-    // value).
+    // Determine Chromosome based on Parents and Mutation Rate
     for(int i = 0;i<len;i++) {
-        float p = random_num(0, 100)/100.; 
-        if(p < 0.45) {
+        float p = random_num(0, 100)/100.;
+        if(p < (float)(100-mutationRate)/200) {
             child_chromosome += chromosome[i]; 
-        } else if(p < 0.90) {
+        } else if(p < (float)(100-mutationRate)/100) {
             child_chromosome += par2.chromosome[i]; 
         } else {
             child_chromosome += mutated_genes(); 
@@ -172,7 +183,16 @@ Individual Individual::mate(Individual par2) {
  * 
  * @return int fitness number
  */
-int Individual::cal_fitness() { 
+int Individual::cal_fitness() {
+    // FilePath is a constant on the Virtual Machine
+    string filePath = "/home/CellAutomataGA/Desktop/Golly Patterns/Simulation/Generation_" + to_string(generation);
+    // Rename Decoded Chromosome
+    string fileName = decode(this->chromosome);
+    std::replace(fileName.begin(), fileName.end(), '/', '_');
+    // Create CC Object 
+    ConwayClassifier c(filePath + "/" + fileName, timeElapsed);
+    
+    // OLD FITNESS METRIC WHILE TROUBLESHOOTING WITH ConwayClassifier
     int len = TARGET.size(); 
     int fitness = 0; 
     // Fitness based on how many incorrect characters there are
@@ -181,7 +201,7 @@ int Individual::cal_fitness() {
             fitness++; 
         }
     } 
-    return fitness;     
+    return fitness;  
 }; 
 
 /**
@@ -213,44 +233,99 @@ void toFile(vector<Individual> population, int gen) {
 }
 
 /**
+ * Method to Fork and Run Golly or Fork and Run a 
+ * Python Script that resets 'CurrentGeneration' field
+ * 
+ * @param reset To determine if Configuration XML needs reset
+ */
+void generatePatterns(bool reset) {
+    const int pid= fork();
+    if (reset) {
+        if (pid== 0) {
+            execlp("python3", "python3", "resetXML.py", nullptr);
+        } else {
+            waitpid(pid, nullptr, 0);
+        }
+    } else {
+        if (pid== 0) {
+            execlp("golly", "golly", "golly-script.py", nullptr);
+        } else {
+            waitpid(pid, nullptr, 0);
+        }
+    }
+}
+
+/**
+ * Method to Iterate over Population and Calculate Fitness
+ * after Simulation.
+ * 
+ * @param population Vector of Individuals
+ */
+void cal_PopFitness(vector<Individual> &population) {
+    for(Individual& i : population) {
+        i.fitness = i.cal_fitness();
+    }
+}
+
+/**
  * Main method to drive GA
  * 
  * @return int exit code (0 if successful)
  */
 int main() {
+    xml_document<> doc;
+	xml_node<> * root_node;
+	// Read the xml file into a vector
+	ifstream theFile ("config.xml");
+	vector<char> buffer((istreambuf_iterator<char>(theFile)), istreambuf_iterator<char>());
+	buffer.push_back('\0');
+	// Parse the buffer using the xml file parsing library into doc 
+	doc.parse<0>(&buffer[0]);
+	// Find our root node
+	root_node = doc.first_node("System");
+    timeElapsed = atoi(root_node->first_node("CellAutomata")->first_node("TimeElapsed")->value());
+    populationSize = atoi(root_node->first_node("GeneticAlgo")->first_node("PopulationSize")->value());
+    elitismPercent = atoi(root_node->first_node("GeneticAlgo")->first_node("ElitismPerc")->value());
+    crossoverRate = atoi(root_node->first_node("GeneticAlgo")->first_node("CrossoverRate")->value());
+    mutationRate = atoi(root_node->first_node("GeneticAlgo")->first_node("MutationRate")->value());
     // Create initial population
     srand((unsigned)(time(0))); 
     string rules;
-    int generation = 0; 
     vector<Individual> population; 
-    bool found = false; 
-    for(int i = 0;i<POPULATION_SIZE;i++) { 
+    bool found = false;
+    generatePatterns(true); // Reset XML
+    for(int i = 0;i<populationSize;i++) { 
         string gnome = create_gnome(); 
         population.push_back(Individual(gnome)); 
     } 
     // Until target is found, crossover and mutate individuals
-    while(! found) {
+    while(!found) {
         toFile(population, generation);
+        generatePatterns(false);
+        cal_PopFitness(population);
+
         sort(population.begin(), population.end()); 
         if(population[0].fitness <= 0) { 
             found = true; 
             break; 
         } 
         vector<Individual> new_generation; 
-        // Send the top 10% of the through to the next generation with no
+        // Send the top percentage through to the next generation with no
         // crossover or mutation
-        int s = (10*POPULATION_SIZE)/100; 
+        int s = (elitismPercent*populationSize)/100; 
         for(int i = 0;i<s;i++) {
             new_generation.push_back(population[i]); 
         }
+
         // Crossover and mutate the rest of the population
-        s = (90*POPULATION_SIZE)/100; 
+        s = ((100-elitismPercent)*populationSize)/100; 
+        int c = (crossoverRate*populationSize)/100;
         for(int i = 0;i<s;i++) { 
             int len = population.size(); 
-            // Choose random parent from top half of performers
-            int r = random_num(0, POPULATION_SIZE/2); 
+            // Choose random parent from top percentage of performers
+            int r = random_num(0, c); 
             Individual parent1 = population[r]; 
-            r = random_num(0, POPULATION_SIZE/2); 
+            r = random_num(0, c); 
             Individual parent2 = population[r]; 
             Individual offspring = parent1.mate(parent2); 
             new_generation.push_back(offspring);  
@@ -278,5 +353,5 @@ int main() {
     cout << "Generation: " << generation << "\t"; 
     cout << "Rule Set: "<< rules << "\t"; 
     cout << "Fitness: "<< population[0].fitness << "\n";
-    // dump();
+    dump();
 }

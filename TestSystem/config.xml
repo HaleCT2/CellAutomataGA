@@ -8,10 +8,10 @@
     </CellAutomata>
     <GeneticAlgo>
         <CurrentGeneration>0</CurrentGeneration>
-        <PopulationSize>10</PopulationSize>
-        <MutationRate>0</MutationRate>
-        <CrossoverRate>0</CrossoverRate>
-        <ElitismPerc>0</ElitismPerc>
+        <PopulationSize>50</PopulationSize>
+        <MutationRate>10</MutationRate>
+        <CrossoverRate>50</CrossoverRate>
+        <ElitismPerc>10</ElitismPerc>
         <FitnessFunction>
             <Class2Weight>0</Class2Weight>
             <Class3Weight>0</Class3Weight>
