@@ -190,7 +190,7 @@ int Individual::cal_fitness() {
     string fileName = decode(this->chromosome);
     std::replace(fileName.begin(), fileName.end(), '/', '_');
     // Create CC Object 
-    ConwayClassifier c(filePath + "/" + fileName, timeElapsed);
+    ConwayClassifier c(filePath + "/" + fileName, timeElapsed, 2);
     
     // OLD FITNESS METRIC WHILE TROUBLESHOOTING WITH ConwayClassifier
     int len = TARGET.size(); 

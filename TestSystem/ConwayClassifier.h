@@ -17,10 +17,12 @@
 class ConwayClassifier {
 public:
     // constructor
-    // takes path to data directory and number of gens run
-    ConwayClassifier(const std::string& dataDirPath, const int genNum);
+    // takes path to data directory and number of gens run as well as the max
+    // number of threads allowed
+    ConwayClassifier(const std::string& dataDirPath, const int genNum, 
+            const int maxThrNum);
 
-    //destructor
+    // destructor to deallocate
     ~ConwayClassifier();
 
     /*
@@ -28,7 +30,7 @@ public:
      * and return it; if var is set because classification() has already been
      * called then just return classNum
      */
-    unsigned short int classification() const;
+    unsigned short int classification();
 
     // returns x and y coordinates of top left corner as a pair
     std::pair<int, int> getCoords() const;
@@ -36,6 +38,10 @@ public:
     // returns width and height as a pair
     std::pair<int, int> getDimensions() const;
     
+    // returns number of generations, which means the max generation number
+    // plus one due to the starting condition, generation 0
+    int getGenNum() const;
+
     // returns min and max x-coords as pair for given gen if giveXCoords is true
     // else returns min and max y-coords as pair for given gen
     std::pair<int, int> getMinMax(const int gen, const bool giveXCoords) const;
@@ -43,12 +49,18 @@ public:
     // returns value of given cell
     bool getCellVal(const int gen, const int xCoord, const int yCoord) const;
 
+    // returns the rule of the given data as a string ex:b234_s67
+    std::string getRule() const;
+
     // prints a given generation of the gameBoard to the given output stream
     void printGameBoard(const int genNum, std::ostream& os = std::cout,
             const char onChar = '1', const char offChar = '0') const;
 
 private:
+    std::string rule; // the rule of the given data as a string ex:b234_s67
     // in golly x is positive to the right and y is positive going DOWN NOT UP
+    int generationCount; // number of generations specified plus one for the
+    // starting conditions
     int x; // x-coordinate of top left corner
     int y; // y-coordinate of top left corner
     int width; // width measures length of board from x to right end of board
@@ -67,13 +79,17 @@ private:
      * so on.
      */
     bool* gameBoard; // 1d array to represent 3d board for speed
-    int boardSize; // size of the gameBoard array
-    const int posQualifierLen = 4;  // "pos=" length in rle header
+    long long int boardSize; // size of the gameBoard array
+    const int posQualifierLen = 4; // "pos=" length in rle header
     // saves the min and the max x-coord for every gen
     std::vector<std::pair<int, int>> minMaxX;
     // saves the min and the max y-coord for every gen
     std::vector<std::pair<int, int>> minMaxY;
-    
+
+    // return the string containing the rule that has been extracted from a
+    // larger path
+    std::string extractRule(const std::string& rleDataDirPath) const;
+
     // checks to see if number of files in directory specified by dataDirPath
     // is less than the genNum given. If so, it sets the classNum instance
     // variable to 1.
@@ -84,14 +100,24 @@ private:
     // sets the x, y, width and height vars and dynamically resizes gameBoard
     void calcBoardSpecs(std::vector<std::ifstream*>& dataFiles);
 
-    // with the board specs calculated fill 3d array with data from files
-    // then close inputStreams
-    void fillBoard(std::vector<std::ifstream*>& dataFiles);
+    // with the board specs calculated fill gameBoard array with data from files
+    // by calling fillGen for every ifstream
+    void fillBoard(std::vector<std::ifstream*>& dataFiles, const int maxThrNum);
+
+    // reads files corresponding to genStartNum through (and including) 
+    // genEndNum and fills the gameBoard accordingly. Once done with a given
+    // ifstream object it closes it.
+    void fillGen(std::vector<std::ifstream*>& dataStreams,
+            const int genStartNum, const int genEndNum);
 
     // takes path to the data directory and creates ifstream object for every
     // file and adds its address (pointer) to a vector; then returns that vector
     std::vector<std::ifstream*> populateIStreamVec(const std::string& dataPath,
             const int genNum) const;
+
+    // deallocate all the ifstreams that are allocated in the populateIstreamVec
+    // method
+    void deallocateIfstreams(std::vector<std::ifstream*>& streamsToClose) const;
 
     // splits a string based on the given delimiter, returns the before the
     // delimiter if firstStr parameter is true, returns after the delimiter
@@ -104,14 +130,14 @@ private:
     // takes what would be the 3 values needed to get a value of a cell in 
     // Conway's game and calculates at what 1D index that cell data is stored
     // in the gameBoard instance variable
-    int get1DIndex(const int gen, const int xCoord,
+    long long int get1DIndex(const int gen, const int xCoord,
             const int yCoord) const;
 
     // sets a given cell to a given value
     void setCellVal(const int gen, const int xCoord, const int yCoord,
             const bool val);
 
-    // malloc's the gameBoard instance var and sets every elt to 0
+    // allocates memory for the gameBoard instance var and sets every elt to 0
     void initializeGameBoard(const int genNum);
 
     // takes the first line of an rle file and extracts the x and y values

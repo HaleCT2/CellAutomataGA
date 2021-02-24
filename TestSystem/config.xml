@@ -7,7 +7,7 @@
         <TimeElapsed>10</TimeElapsed>
     </CellAutomata>
     <GeneticAlgo>
-        <CurrentGeneration>4</CurrentGeneration>
+        <CurrentGeneration>0</CurrentGeneration>
         <PopulationSize>50</PopulationSize>
         <MutationRate>10</MutationRate>
         <CrossoverRate>50</CrossoverRate>
