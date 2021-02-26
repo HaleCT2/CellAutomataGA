@@ -1,4 +1,3 @@
-// New comment test from Owen
 /* 
  * File:   main.cpp
  * Author: Owen Hichens, Carter Hale
