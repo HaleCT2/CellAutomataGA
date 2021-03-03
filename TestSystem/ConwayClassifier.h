@@ -26,9 +26,8 @@ public:
     ~ConwayClassifier();
 
     /*
-     * if classNum instance var is not set (=5) then calculate classification
-     * and return it; if var is set because classification() has already been
-     * called then just return classNum
+     * return classification num which is initialized to 3 and has the 
+     * chance to be set to either 1 or 2 in constructor as necessary
      */
     unsigned short int classification();
 
@@ -65,7 +64,9 @@ private:
     int y; // y-coordinate of top left corner
     int width; // width measures length of board from x to right end of board
     int height; // height measures length of board from y to bottom end
-    unsigned short int classNum; // represents classification num of this rule
+    // represents classification num of this rule. Anything greater than class
+    // 2 will be assigned a value of 3.
+    unsigned short int classNum; 
     // the gameboard will be resized such that it covers the max range of the
     // game
     /*
@@ -85,6 +86,10 @@ private:
     std::vector<std::pair<int, int>> minMaxX;
     // saves the min and the max y-coord for every gen
     std::vector<std::pair<int, int>> minMaxY;
+    
+    // this is used to set relevant instance variables to 0/null if
+    // class is determined to be 1/2 before classification method is called
+    void voidInstanceVars();
 
     // return the string containing the rule that has been extracted from a
     // larger path
@@ -94,6 +99,10 @@ private:
     // is less than the genNum given. If so, it sets the classNum instance
     // variable to 1.
     void checkForClass1(const std::string& dataDirPath, const int genNum);
+    
+    // adds encoded pattern in each rle file to hash map to check for repeat
+    // patterns. If it is class 2, the classNum variable will be set to 2
+    void checkForClass2(std::vector<std::ifstream*>& dataFiles);
 
     // takes vector of ifstream objects to figure out coords and dimensions
     // when finished resets ifstreams

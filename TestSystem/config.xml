@@ -4,7 +4,7 @@
             <GridSize>100</GridSize>
             <GridFillPerc>50</GridFillPerc>
         </StartingGrid>
-        <TimeElapsed>10</TimeElapsed>
+        <TimeElapsed>50</TimeElapsed>
     </CellAutomata>
     <GeneticAlgo>
         <CurrentGeneration>0</CurrentGeneration>

@@ -192,16 +192,19 @@ int Individual::cal_fitness() {
     // Create CC Object 
     ConwayClassifier c(filePath + "/" + fileName, timeElapsed, 2);
     
-    // OLD FITNESS METRIC WHILE TROUBLESHOOTING WITH ConwayClassifier
-    int len = TARGET.size(); 
-    int fitness = 0; 
-    // Fitness based on how many incorrect characters there are
-    for(int i = 0;i<len;i++) { 
-        if(chromosome[i] != TARGET[i]) {
-            fitness++; 
-        }
-    } 
-    return fitness;  
+    // // OLD FITNESS METRIC WHILE TROUBLESHOOTING WITH ConwayClassifier
+    // int len = TARGET.size(); 
+    // int fitness = 0; 
+    // // Fitness based on how many incorrect characters there are
+    // for(int i = 0;i<len;i++) { 
+    //     if(chromosome[i] != TARGET[i]) {
+    //         fitness++; 
+    //     }
+    // } 
+    // return fitness;
+
+    // Return Class (1,2, or 3)
+    return c.classification();
 }; 
 
 /**
@@ -264,6 +267,8 @@ void generatePatterns(bool reset) {
 void cal_PopFitness(vector<Individual> &population) {
     for(Individual& i : population) {
         i.fitness = i.cal_fitness();
+        // I'm currently printing each Individual's Class for Testing
+        std::cout << decode(i.chromosome) << " Class:" << i.fitness << "\n";
     }
 }
 

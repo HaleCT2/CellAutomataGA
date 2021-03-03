@@ -4,6 +4,7 @@
 #include <string>
 #include <sstream>
 #include <vector>
+#include <unordered_map>
 #include <utility>
 #include <fstream>
 #include <filesystem>
@@ -15,7 +16,7 @@ ConwayClassifier::ConwayClassifier(const std::string& dataDirPath,
         const int genNum, const int maxThrNum) {
     this->generationCount = genNum + 1;
     this->rule = this->extractRule(dataDirPath);
-    this->classNum = 5; // initialize classNum
+    this->classNum = 3; // initialize classNum
     // Check and see if # of files in data path is less than genNum. If so
     // set classNum to 1 and then skip the following method calls.
     // Instead, initialize the instance variables so the API is fulfilled.
@@ -23,26 +24,33 @@ ConwayClassifier::ConwayClassifier(const std::string& dataDirPath,
     if (this->classNum != 1) {
         std::vector<std::ifstream*> fileStreams = // to be used to check hdrs
                 populateIStreamVec(dataDirPath, genNum);
-        // initialize rest of vars inside calcBoardSpecs and fillBoard
-        calcBoardSpecs(fileStreams);
-        // with necessary data grabbed now can initialize the array
-        initializeGameBoard(genNum);
-        fillBoard(fileStreams, maxThrNum);
+        this->checkForClass2(fileStreams);
+        if (this->classNum != 2) {
+            // initialize rest of vars inside calcBoardSpecs and fillBoard
+            calcBoardSpecs(fileStreams);
+            // with necessary data grabbed now can initialize the array
+            initializeGameBoard(genNum);
+            fillBoard(fileStreams, maxThrNum);
+        } else
+            this->voidInstanceVars();
         // now done with file streams so deallocate them
         this->deallocateIfstreams(fileStreams);
-    } else {
-        this->x = 0;
-        this->y = 0;
-        this->width = 0;
-        this->height = 0;
-        this->gameBoard = NULL;
-        this->boardSize = 0;
-    }
+    } else
+        this->voidInstanceVars();
 }
 
 ConwayClassifier::~ConwayClassifier() {
     // need to deallocate array
     delete[] this->gameBoard;
+}
+
+void ConwayClassifier::voidInstanceVars() {
+    this->x = 0;
+    this->y = 0;
+    this->width = 0;
+    this->height = 0;
+    this->gameBoard = NULL;
+    this->boardSize = 0;
 }
 
 std::string
@@ -70,6 +78,35 @@ void ConwayClassifier::checkForClass1(const std::string& dataDirPath,
        if (fileCount != (genNum + 1)) {
            this->classNum = 1;
        }
+}
+
+void ConwayClassifier::checkForClass2(std::vector<std::ifstream*>& dataFiles) {
+    std::unordered_map<std::string, int>
+            patternMap = std::unordered_map<std::string, int>();
+    std::string unneededHeader, data, pattern;
+    int genNum = 0;
+    for (auto is : dataFiles) {
+        std::getline(*is, unneededHeader);
+        std::getline(*is, unneededHeader); // toss out headers
+        data = "";
+        pattern = "";
+        while ((*is) >> data) { // get all of encoded pattern
+            pattern += data;
+        }
+        // check if its in the hash map
+        // if it isn't, add it
+        if (patternMap.find(pattern) == std::end(patternMap)) {
+            patternMap[pattern] = genNum;
+        }            // if it is set classNum to 2 and exit loop and method as it is no
+            // longer necessary to search more
+        else {
+            this->classNum = 2;
+            break;
+        }
+        is->clear();
+        is->seekg(0, std::ios::beg); // reset ifstream for next use
+        genNum++;
+    }
 }
 
 std::vector<std::ifstream*>
@@ -132,6 +169,7 @@ void ConwayClassifier::calcBoardSpecs(std::vector<std::ifstream*>& dataFiles) {
             if (tempMaxY > maxY)
                 maxY = tempMaxY;
         }
+        is->clear();
         is->seekg(0, std::ios::beg); // reset ifstream for next use
     }
     this->x = minX;
@@ -269,11 +307,6 @@ long long int ConwayClassifier::get1DIndex(const int gen, const int xCoord,
 }
 
 unsigned short int ConwayClassifier::classification() {
-    if (this->classNum == 5) {
-        // determine class #
-        // ToDo
-    }
-    // else just return already calculated class
     return this->classNum;
 }
 
@@ -340,7 +373,7 @@ void ConwayClassifier::printGameBoard(const int genNum, std::ostream& os,
             os << offChar;
         // new row
         if ((i - (index + 1)) % this->width == 0)
-            os << "\n";
+            os << std::endl;
     }
     os << std::endl;
 }
