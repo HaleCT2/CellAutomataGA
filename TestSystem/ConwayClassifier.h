@@ -19,8 +19,11 @@ public:
     // constructor
     // takes path to data directory and number of gens run as well as the max
     // number of threads allowed
+    // endCalcPercent is the end percentage of generations for which stats
+    // should be calculated, so endCalcPercent == 25 means that the last 
+    // 25% of generations will have stats calculated for them
     ConwayClassifier(const std::string& dataDirPath, const int genNum, 
-            const int maxThrNum);
+            const int maxThrNum, const int endCalcPercent);
 
     // destructor to deallocate
     ~ConwayClassifier();
@@ -50,6 +53,18 @@ public:
 
     // returns the rule of the given data as a string ex:b234_s67
     std::string getRule() const;
+    
+    // returns the alive cell ratio for a given generation
+    // if no generation is given (hence genNum = -1) then this getter will
+    // return the average of all calculated alive cell ratios
+    double getAliveCellRatio(const int genNum = -1) const;
+    
+    // returns the percent change between a given gen and the previous, so if
+    // supplied generation is 750, the percent change returned is the difference
+    // between generations 749 and 750
+    // if no generation is given (hence genNum = -1) then this getter will
+    // return the average of all calculated percent changes between gens
+    double getPercentChange(const int genNum = -1) const;
 
     // prints a given generation of the gameBoard to the given output stream
     void printGameBoard(const int genNum, std::ostream& os = std::cout,
@@ -86,6 +101,14 @@ private:
     std::vector<std::pair<int, int>> minMaxX;
     // saves the min and the max y-coord for every gen
     std::vector<std::pair<int, int>> minMaxY;
+    int statStartGen; // from this gen on, stats will be calculated for
+    // things like aliveCellRatio
+    std::vector<double> aliveCellRatio; // vector describing
+    // alive cell ratio for gens specified by endCalcPercent
+    std::vector<double> percentChange; // vector where each element describes
+    // percentage of cells that change their value between generations so if
+    // you start calculating stats with generation 750, the 0th element of this
+    // vector is the % change between generations 749 and 750
     
     // this is used to set relevant instance variables to 0/null if
     // class is determined to be 1/2 before classification method is called
@@ -147,6 +170,7 @@ private:
             const bool val);
 
     // allocates memory for the gameBoard instance var and sets every elt to 0
+    // also sets aliveCellRatio vector to correct length
     void initializeGameBoard(const int genNum);
 
     // takes the first line of an rle file and extracts the x and y values
@@ -158,6 +182,17 @@ private:
     // width and height data ("x =" and "y =" in the rle) and returns
     // the data as a pair
     std::pair<int, int> readWidthHeight(const std::string& secLine) const;
+    
+    // adds 1 to correct vector element of aliveCellRatio
+    void setAliveCount(const int genNum);
+    
+    // finishes calculating stats like the aliveCellRatio by dividing each
+    // generation's alive count by the area of the generation
+    void finishStats();
+    
+    // goes through generations specified by endCalcPercent and calculates
+    // the percent change of cells between generations
+    void calculatePercentChange();
 };
 
 

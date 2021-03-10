@@ -13,8 +13,11 @@
 #include "ConwayClassifier.h"
 
 ConwayClassifier::ConwayClassifier(const std::string& dataDirPath,
-        const int genNum, const int maxThrNum) {
+        const int genNum, const int maxThrNum, const int endCalcPercent) {
     this->generationCount = genNum + 1;
+    int statCalcLength = (int) (((double) this->generationCount / 100)
+            * (double) endCalcPercent);
+    this->statStartGen = this->generationCount - statCalcLength;
     this->rule = this->extractRule(dataDirPath);
     this->classNum = 3; // initialize classNum
     // Check and see if # of files in data path is less than genNum. If so
@@ -29,8 +32,10 @@ ConwayClassifier::ConwayClassifier(const std::string& dataDirPath,
             // initialize rest of vars inside calcBoardSpecs and fillBoard
             calcBoardSpecs(fileStreams);
             // with necessary data grabbed now can initialize the array
+            // and other data structures
             initializeGameBoard(genNum);
             fillBoard(fileStreams, maxThrNum);
+            finishStats();
         } else
             this->voidInstanceVars();
         // now done with file streams so deallocate them
@@ -67,17 +72,17 @@ ConwayClassifier::extractRule(const std::string& rleDataDirPath) const {
 
 void ConwayClassifier::checkForClass1(const std::string& dataDirPath,
         const int genNum) {
-       auto dirIter = std::filesystem::directory_iterator(dataDirPath);
-       int fileCount = 0;
-    
-       for (auto& entry : dirIter) {
-           if (entry.is_regular_file()) {
-               ++fileCount;
-           }
-       }
-       if (fileCount != (genNum + 1)) {
-           this->classNum = 1;
-       }
+    //       auto dirIter = std::filesystem::directory_iterator(dataDirPath);
+    //       int fileCount = 0;
+    //    
+    //       for (auto& entry : dirIter) {
+    //           if (entry.is_regular_file()) {
+    //               ++fileCount;
+    //           }
+    //       }
+    //       if (fileCount != (genNum + 1)) {
+    //           this->classNum = 1;
+    //       }
 }
 
 void ConwayClassifier::checkForClass2(std::vector<std::ifstream*>& dataFiles) {
@@ -85,7 +90,7 @@ void ConwayClassifier::checkForClass2(std::vector<std::ifstream*>& dataFiles) {
             patternMap = std::unordered_map<std::string, int>();
     std::string unneededHeader, data, pattern;
     int genNum = 0;
-    for (auto is : dataFiles) {
+    for (auto& is : dataFiles) {
         std::getline(*is, unneededHeader);
         std::getline(*is, unneededHeader); // toss out headers
         data = "";
@@ -97,7 +102,7 @@ void ConwayClassifier::checkForClass2(std::vector<std::ifstream*>& dataFiles) {
         // if it isn't, add it
         if (patternMap.find(pattern) == std::end(patternMap)) {
             patternMap[pattern] = genNum;
-        }            // if it is set classNum to 2 and exit loop and method as it is no
+        }// if it is set classNum to 2 and exit loop and method as it is no
             // longer necessary to search more
         else {
             this->classNum = 2;
@@ -135,7 +140,7 @@ void ConwayClassifier::deallocateIfstreams(std::vector<std::ifstream*>&
 void ConwayClassifier::calcBoardSpecs(std::vector<std::ifstream*>& dataFiles) {
     int minX, maxX, minY, maxY;
     bool firstFile = true;
-    for (auto is : dataFiles) {
+    for (auto& is : dataFiles) {
         // for each file get first and second line and read in necessary data
         std::string firstLine, secLine;
         std::getline(*is, firstLine);
@@ -271,6 +276,7 @@ void ConwayClassifier::fillGen(std::vector<std::ifstream*>& dataStreams,
                     if (c == 'o') { // set cell alive
                         this->setCellVal(genNum, currentX,
                                 currentY, true);
+                        this->setAliveCount(genNum);
                     }
                     // don't need to set cell dead as all cells initialized dead
                     // increment currentX and currentY correctly
@@ -286,6 +292,41 @@ void ConwayClassifier::fillGen(std::vector<std::ifstream*>& dataStreams,
         // now done with ifstream object so close it
         is->close();
         genNum++;
+    }
+}
+
+void ConwayClassifier::setAliveCount(const int genNum) {
+    if (genNum >= this->statStartGen)
+        this->aliveCellRatio[genNum - this->statStartGen] += 1;
+}
+
+void ConwayClassifier::finishStats() {
+    // turn counts into ratios by dividing number of alive cells by the area of
+    // the board
+    for (auto& elt : this->aliveCellRatio) {
+        elt = elt / (this->width * this->height);
+    }
+    // with gameboard now filled, calculate the percent change
+    calculatePercentChange();
+}
+
+void ConwayClassifier::calculatePercentChange() {
+    // since calculating stats for generation n requires the previous gen 
+    // (n - 1), need to start from statStartGen - 1 and then stop at
+    // generationCount - 2 since you would then be looking at generationCount-1
+    // and that is the maximum generation index
+    for (int i = this->statStartGen - 1; i <= this->generationCount - 2; i++) {
+        int changeCount = 0;
+        for (int y = this->y; y < this->y + this->height; y++) {
+            for (int x = this->x; x < this->x + this->width; x++) {
+                if (this->getCellVal(i, x, y) != this->getCellVal(i + 1, x, y))
+                    changeCount++;
+            }
+        }
+        // add one since i actually refers to gen n - 1 when calculating
+        // percent change for generation n
+        this->percentChange[i + 1 - this->statStartGen] =
+                (double) changeCount / (this->width * this->height);
     }
 }
 
@@ -347,6 +388,34 @@ void ConwayClassifier::setCellVal(const int gen, const int xCoord,
     this->gameBoard[this->get1DIndex(gen, xCoord, yCoord)] = val;
 }
 
+double ConwayClassifier::getAliveCellRatio(const int genNum) const {
+    if (genNum == -1) { // return average alive cell ratio
+        double sum = 0;
+        for (auto& ratio : this->aliveCellRatio) {
+            sum += ratio;
+        }
+        return (sum / (double) this->aliveCellRatio.size());
+    } else {
+        if (genNum >= this->statStartGen && genNum < this->generationCount) {
+            return this->aliveCellRatio[genNum - this->statStartGen];
+        } else return -1;
+    }
+}
+
+double ConwayClassifier::getPercentChange(const int genNum) const {
+    if (genNum == -1) { // return average percent change
+        double sum = 0;
+        for (auto& percChange : this->percentChange) {
+            sum += percChange;
+        }
+        return (sum / (double) this->percentChange.size());
+    } else {
+        if (genNum >= this->statStartGen && genNum < this->generationCount) {
+            return this->percentChange[genNum - this->statStartGen];
+        } else return -1;
+    }
+}
+
 void ConwayClassifier::initializeGameBoard(const int genNum) {
     // genNum has 1 added to it because we need the initial layout in addition
     // to the specified number of generations
@@ -357,6 +426,10 @@ void ConwayClassifier::initializeGameBoard(const int genNum) {
     this->gameBoard = new bool[this->boardSize] {
         false
     };
+    // now set this->aliveCellRatio to correct length
+    this->aliveCellRatio.resize(this->generationCount - this->statStartGen);
+    // set this->percentChange to correct length as well
+    this->percentChange.resize(this->generationCount - this->statStartGen);
 }
 
 void ConwayClassifier::printGameBoard(const int genNum, std::ostream& os,

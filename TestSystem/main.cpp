@@ -190,21 +190,16 @@ double Individual::cal_fitness() {
     string fileName = decode(this->chromosome);
     std::replace(fileName.begin(), fileName.end(), '/', '_');
     // Create CC Object 
-    ConwayClassifier c(filePath + "/" + fileName, timeElapsed, 2);
-    
-    // // OLD FITNESS METRIC WHILE TROUBLESHOOTING WITH ConwayClassifier
-    // int len = TARGET.size(); 
-    // int fitness = 0; 
-    // // Fitness based on how many incorrect characters there are
-    // for(int i = 0;i<len;i++) { 
-    //     if(chromosome[i] != TARGET[i]) {
-    //         fitness++; 
-    //     }
-    // } 
-    // return fitness;
+    ConwayClassifier c(filePath + "/" + fileName, timeElapsed, 2, 30);
 
-    // Return Class (1,2, or 3)
-    return (double)1 / (double)c.classification();
+    // TESTING FITNESS IDEAS
+
+    // Ignore Class 1 & 2
+    if (c.classification() < 3) {
+        return 0;
+    } else { // Testing different Ideas (This doesn't work)
+        return 5.0 + (0.5/c.getAliveCellRatio(-1)) + (5.0*c.getPercentChange(-1));
+    }
 }; 
 
 /**
@@ -213,11 +208,11 @@ double Individual::cal_fitness() {
  * 
  * @param ind1: First individual
  * @param ind2: Second individual
- * @return bool true if ind1's fitness number is less than ind2's fitness
+ * @return bool true if ind1's fitness number is greater than ind2's fitness
  *         number, false otherwise
  */
 bool operator<(const Individual &ind1, const Individual &ind2) { 
-    return ind1.fitness < ind2.fitness; 
+    return ind1.fitness > ind2.fitness; 
 } 
 
 /**
@@ -267,8 +262,8 @@ void generatePatterns(bool reset) {
 void cal_PopFitness(vector<Individual> &population) {
     for(Individual& i : population) {
         i.fitness = i.cal_fitness();
-        // I'm currently printing each Individual's Class for Testing
-        // std::cout << decode(i.chromosome) << " Class:" << i.fitness << "\n";
+        // I'm currently printing each Individual's Fitness for Testing
+        std::cout << decode(i.chromosome) << "\t\tFitness:" << i.fitness << "\n";
     }
 }
 
