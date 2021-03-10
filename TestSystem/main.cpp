@@ -140,10 +140,10 @@ string create_gnome() {
 class Individual { 
 public: 
     string chromosome; 
-    int fitness; 
+    double fitness; 
     Individual(string chromosome); 
     Individual mate(Individual parent2); 
-    int cal_fitness(); 
+    double cal_fitness(); 
 }; 
 
 /**
@@ -183,7 +183,7 @@ Individual Individual::mate(Individual par2) {
  * 
  * @return int fitness number
  */
-int Individual::cal_fitness() {
+double Individual::cal_fitness() {
     // FilePath is a constant on the Virtual Machine
     string filePath = "/home/CellAutomataGA/Desktop/Golly Patterns/Simulation/Generation_" + to_string(generation);
     // Rename Decoded Chromosome
@@ -204,7 +204,7 @@ int Individual::cal_fitness() {
     // return fitness;
 
     // Return Class (1,2, or 3)
-    return c.classification();
+    return (double)1 / (double)c.classification();
 }; 
 
 /**
@@ -268,7 +268,7 @@ void cal_PopFitness(vector<Individual> &population) {
     for(Individual& i : population) {
         i.fitness = i.cal_fitness();
         // I'm currently printing each Individual's Class for Testing
-        std::cout << decode(i.chromosome) << " Class:" << i.fitness << "\n";
+        // std::cout << decode(i.chromosome) << " Class:" << i.fitness << "\n";
     }
 }
 
@@ -310,7 +310,7 @@ int main() {
         cal_PopFitness(population);
 
         sort(population.begin(), population.end()); 
-        if(population[0].fitness <= 0) { 
+        if(generation == 5) { 
             found = true; 
             break; 
         } 
