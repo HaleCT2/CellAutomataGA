@@ -2,15 +2,15 @@
     <CellAutomata>
         <StartingGrid>
             <GridSize>100</GridSize>
-            <GridFillPerc>50</GridFillPerc>
+            <GridFillPerc>25</GridFillPerc>
         </StartingGrid>
-        <TimeElapsed>50</TimeElapsed>
+        <TimeElapsed>100</TimeElapsed>
     </CellAutomata>
     <GeneticAlgo>
-        <CurrentGeneration>0</CurrentGeneration>
+        <CurrentGeneration>6</CurrentGeneration>
         <PopulationSize>50</PopulationSize>
         <MutationRate>10</MutationRate>
-        <CrossoverRate>50</CrossoverRate>
+        <CrossoverRate>40</CrossoverRate>
         <ElitismPerc>10</ElitismPerc>
         <FitnessFunction>
             <Class2Weight>0</Class2Weight>

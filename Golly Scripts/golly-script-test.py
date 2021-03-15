@@ -1,7 +1,7 @@
 # File:         golly-script-test.py
 # Author:       Carter Hale
 # Date Created: September 9, 2020
-# Last Updated: February 3, 2021
+# Last Updated: March 15, 2021
 
 # Golly doesn't offer standalone Library so the Module is instantiated
 # when the Executable is launched. Script can only be ran from within Golly.
@@ -10,10 +10,6 @@ import golly as g
 import random
 # OS Library used for File Management
 import os
-# Import WriteBMP from GLife
-from glife.WriteBMP import WriteBMP
-# Import FileCmp for BMP File Comparison
-import filecmp
 
 
 # -----------------------------------------------------------------------------
@@ -47,37 +43,6 @@ def make_rule():
     return rule
 # -----------------------------------------------------------------------------
 
-
-# -----------------------------------------------------------------------------
-# Function to Create .BMP Images for each Pattern
-def write_bmp(bmp_fileName):
-    prect = g.getrect()
-    x = prect[0]
-    y = prect[1]
-    wd = prect[2]
-    ht = prect[3]
-
-    colors = g.getcolors()
-    state0 = (colors[1], colors[2], colors[3])
-
-    # Create 2D Array of Pixels
-    pixels = [[state0 for col in xrange(wd)] for row in xrange(ht)]
-
-    cellcount = 0
-    for row in xrange(ht):
-        # Get a Row of Cells at a time
-        cells = g.getcells([x, y + row, wd, 1])
-        clen = len(cells)
-        if clen > 0:
-            inc = 2
-        for i in xrange(0, clen, inc):
-            pixels[row][cells[i]-x] = (colors[5], colors[6], colors[7])
-            cellcount += 1
-
-    WriteBMP(pixels, bmp_fileName)
-# -----------------------------------------------------------------------------
-
-
 # -----------------------------------------------------------------------------
 # Function to compare RLE Files for Homogeneity
 def compare_rle(fileName1, fileName2):
@@ -104,10 +69,7 @@ numPopulation = g.getstring("Enter Population Size of Individual CA Rules:\n" +
 
 numGenerations = g.getstring("Enter Number of CA Generations to Explore\n" +
                              "for Each Individual Rule in the Population:",
-                             "10", "Number of Generations")
-
-fileChoice = g.getstring("Enter Preferred Pattern File Format\n" +
-                         "(Either 'RLE' or 'BMP'):", "RLE", "File Format")
+                             "100", "Number of Generations")
 
 # Loop Process for Each Individual Rule in the Population
 for j in range(int(numPopulation)):
@@ -147,22 +109,13 @@ for j in range(int(numPopulation)):
 
         # Determine File Names
         fileNameRLE = fileNamePrefix + str(i) + ".rle"
-        fileNameBMP = fileNamePrefix + str(i) + ".bmp"
         # Determine Previous File Names
         fileNamePrevRLE = fileNamePrefix + str(i-1) + ".rle"
-        fileNamePrevBMP = fileNamePrefix + str(i-1) + ".bmp"
 
-        if (fileChoice == "RLE"):
-            g.save(fileNameRLE, "rle")
-            # Compare Previous Generation to Determine Class I Systems
-            if (i > 0 and compare_rle(fileNameRLE, fileNamePrevRLE)):
-                break
-
-        elif (fileChoice == "BMP" or fileChoice == "bmp"):
-            write_bmp(fileNameBMP)
-            # Compare Previous Generation to Determine Class I Systems
-            if (i > 0 and filecmp.cmp(fileNameBMP, fileNamePrevBMP)):
-                break
+        g.save(fileNameRLE, "rle")
+        # Compare Previous Generation to Determine Class I Systems
+        if (i > 0 and compare_rle(fileNameRLE, fileNamePrevRLE)):
+            break
 
         g.run(1)
 

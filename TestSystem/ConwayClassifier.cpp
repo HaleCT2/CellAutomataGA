@@ -72,17 +72,17 @@ ConwayClassifier::extractRule(const std::string& rleDataDirPath) const {
 
 void ConwayClassifier::checkForClass1(const std::string& dataDirPath,
         const int genNum) {
-    //       auto dirIter = std::filesystem::directory_iterator(dataDirPath);
-    //       int fileCount = 0;
-    //    
-    //       for (auto& entry : dirIter) {
-    //           if (entry.is_regular_file()) {
-    //               ++fileCount;
-    //           }
-    //       }
-    //       if (fileCount != (genNum + 1)) {
-    //           this->classNum = 1;
-    //       }
+          auto dirIter = std::filesystem::directory_iterator(dataDirPath);
+          int fileCount = 0;
+       
+          for (auto& entry : dirIter) {
+              if (entry.is_regular_file()) {
+                  ++fileCount;
+              }
+          }
+          if (fileCount != (genNum + 1)) {
+              this->classNum = 1;
+          }
 }
 
 void ConwayClassifier::checkForClass2(std::vector<std::ifstream*>& dataFiles) {
