@@ -184,22 +184,28 @@ double Individual::cal_fitness() {
     ConwayClassifier c(filePath + "/" + fileName, timeElapsed, 2, 30);
 
     // Calculate Metrics and Weights
-    double AliveCell = c.getAliveCellRatio(-1);
-    double PercentChange = c.getPercentChange(-1);
+    double AliveCell = c.getAliveCellRatio();
+    double PercentChange = c.getPercentChange();
+    double ActiveCell = c.getActiveCellRatio();
 
     double AliveWeight = 0;
     double PercentWeight = 0;
+    double ActiveWeight = 0;
 
     // Determine Closeness to 'Ideal' Metrics
-    if (AliveCell > 0 && AliveCell < 0.4) {
-        AliveWeight = (0.20  - abs(AliveCell - 0.20))/0.20;
+    if (AliveCell > 0 && AliveCell < 0.38) {
+        AliveWeight = (0.19  - abs(AliveCell - 0.19))/0.19;
     }
-    if (PercentChange > 0 && PercentChange < 0.33) {
-        PercentWeight = (0.165  - abs(PercentChange - 0.165))/0.165;
+    if (PercentChange > 0 && PercentChange < 0.30) {
+        PercentWeight = (0.15  - abs(PercentChange - 0.15))/0.15;
+    }
+
+    if (ActiveCell > 0 && ActiveCell < 0.04) {
+        ActiveWeight = (0.02 - abs(ActiveCell - 0.02))/0.02;
     }
     
-     // Return Fitness Value (Max of 5, Min of 1)
-    return c.classification() + AliveWeight + PercentWeight;
+     // Return Fitness Value (Max of 6, Min of 1)
+    return c.classification() + AliveWeight + PercentWeight + ActiveWeight;
 }; 
 
 /**
