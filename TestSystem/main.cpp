@@ -6,11 +6,6 @@
  *
  * Created on October 14, 2020
  * Last Updated on February 22, 2021
- * 
- * TO DO:
- * - Get Golly results as input
- * - Change fitness function so instead of finding target, find interesting 
- *   systems.
  */
 
 #include <bits/stdc++.h>
@@ -19,12 +14,14 @@
 #include <sys/wait.h>
 #include <algorithm>
 #include <string>
+#include <cmath>    
 #include "ConwayClassifier.h"
 #include "rapidxml.hpp"
 
 using namespace std; 
 using namespace rapidxml;
 
+// Global Variables from XML Config
 int generation = 0; 
 int populationSize;
 int elitismPercent;
@@ -34,10 +31,7 @@ int timeElapsed;
 
 // Possible characters to make up genome. Note that the genome is a binary
 // number represented as a string for simplicity.
-const string GENES = "01"; 
-
-// Target string. Set to "b2s23" to find Conway's Game of Life
-const string TARGET_RULE_SET = "b2s23";
+const string GENES = "01010"; // Testing different Ruleset Creation (2/5 Odds)
 
 /**
  * Random number generator method
@@ -106,9 +100,6 @@ string encode(string ruleSet) {
     return chromosome;
 }
 
-// Have to define this target after strToBin is defined, but still global
-const string TARGET = encode(TARGET_RULE_SET); 
-
 /**
  * Mutation function
  * 
@@ -126,7 +117,7 @@ char mutated_genes() {
  * @return string new genome
  */
 string create_gnome() { 
-    int len = TARGET.size(); 
+    int len = 18; // Binary String Size 
     string gnome = ""; 
     for(int i = 0;i<len;i++) {
         gnome += mutated_genes(); 
@@ -192,14 +183,29 @@ double Individual::cal_fitness() {
     // Create CC Object 
     ConwayClassifier c(filePath + "/" + fileName, timeElapsed, 2, 30);
 
-    // TESTING FITNESS IDEAS
+    // Calculate Metrics and Weights
+    double AliveCell = c.getAliveCellRatio();
+    double PercentChange = c.getPercentChange();
+    double ActiveCell = c.getActiveCellRatio();
 
-    // Ignore Class 1 & 2
-    if (c.classification() < 3) {
-        return 0;
-    } else { // Testing different Ideas (This doesn't work)
-        return 5.0 + (0.5/c.getAliveCellRatio(-1)) + (5.0*c.getPercentChange(-1));
+    double AliveWeight = 0;
+    double PercentWeight = 0;
+    double ActiveWeight = 0;
+
+    // Determine Closeness to 'Ideal' Metrics
+    if (AliveCell > 0 && AliveCell < 0.38) {
+        AliveWeight = (0.19  - abs(AliveCell - 0.19))/0.19;
     }
+    if (PercentChange > 0 && PercentChange < 0.30) {
+        PercentWeight = (0.15  - abs(PercentChange - 0.15))/0.15;
+    }
+
+    if (ActiveCell > 0 && ActiveCell < 0.04) {
+        ActiveWeight = (0.02 - abs(ActiveCell - 0.02))/0.02;
+    }
+    
+     // Return Fitness Value (Max of 6, Min of 1)
+    return c.classification() + AliveWeight + PercentWeight + ActiveWeight;
 }; 
 
 /**
@@ -262,8 +268,8 @@ void generatePatterns(bool reset) {
 void cal_PopFitness(vector<Individual> &population) {
     for(Individual& i : population) {
         i.fitness = i.cal_fitness();
-        // I'm currently printing each Individual's Fitness for Testing
-        std::cout << decode(i.chromosome) << "\t\tFitness:" << i.fitness << "\n";
+        // Print each Individual's Fitness
+        printf("%8s%20s%13s%5.3f\n", "Ruleset: ", decode(i.chromosome).c_str(), "Fitness: ", i.fitness);
     }
 }
 
@@ -303,8 +309,8 @@ int main() {
         toFile(population, generation);
         generatePatterns(false);
         cal_PopFitness(population);
-
-        sort(population.begin(), population.end()); 
+        sort(population.begin(), population.end());
+        // Converge after five Generations
         if(generation == 5) { 
             found = true; 
             break; 
@@ -330,28 +336,16 @@ int main() {
             Individual offspring = parent1.mate(parent2); 
             new_generation.push_back(offspring);  
         } 
-        population = new_generation; 
-        cout<< "Generation: " << generation << "\t"; 
+        population = new_generation;
+        // Print Top Performer
         rules = decode(population[0].chromosome);
-        if (rules.length() <= 13) {
-            rules += "\t";
-        }   
-        if (rules.length() <= 6) {
-            rules += "\t";
-        }
-        cout<< "Rule Set: "<< rules << "\t"; 
-        cout<< "Fitness: "<< population[0].fitness << "\n"; 
+        printf("%8s%20s%13s%5.3f%16s%d\n\n", "Ruleset: ", rules.c_str(), "Fitness: ", 
+            population[0].fitness, "Generation: ", generation);
         generation++; 
-    } 
+    }
+    // Print Top Performer of Last Generation
     rules = decode(population[0].chromosome);
-    if (rules.length() <= 13) {
-        rules += "\t";
-    }
-    if (rules.length() <= 6) {
-        rules += "\t";
-    }
-    cout << "Generation: " << generation << "\t"; 
-    cout << "Rule Set: "<< rules << "\t"; 
-    cout << "Fitness: "<< population[0].fitness << "\n";
+    printf("%8s%20s%13s%5.3f%16s%d\n", "Ruleset: ", rules.c_str(), "Fitness: ", 
+        population[0].fitness, "Generation: ", generation);
     dump();
 }

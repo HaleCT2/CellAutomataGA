@@ -72,17 +72,17 @@ ConwayClassifier::extractRule(const std::string& rleDataDirPath) const {
 
 void ConwayClassifier::checkForClass1(const std::string& dataDirPath,
         const int genNum) {
-    //       auto dirIter = std::filesystem::directory_iterator(dataDirPath);
-    //       int fileCount = 0;
-    //    
-    //       for (auto& entry : dirIter) {
-    //           if (entry.is_regular_file()) {
-    //               ++fileCount;
-    //           }
-    //       }
-    //       if (fileCount != (genNum + 1)) {
-    //           this->classNum = 1;
-    //       }
+    auto dirIter = std::filesystem::directory_iterator(dataDirPath);
+    int fileCount = 0;
+
+    for (auto& entry : dirIter) {
+        if (entry.is_regular_file()) {
+            ++fileCount;
+        }
+    }
+    if (fileCount != (genNum + 1)) {
+        this->classNum = 1;
+    }
 }
 
 void ConwayClassifier::checkForClass2(std::vector<std::ifstream*>& dataFiles) {
@@ -301,13 +301,17 @@ void ConwayClassifier::setAliveCount(const int genNum) {
 }
 
 void ConwayClassifier::finishStats() {
+    calculateAliveCellRatio();
+    calculatePercentChange();
+    calculateActiveCellRatio();
+}
+
+void ConwayClassifier::calculateAliveCellRatio() {
     // turn counts into ratios by dividing number of alive cells by the area of
     // the board
     for (auto& elt : this->aliveCellRatio) {
         elt = elt / (this->width * this->height);
     }
-    // with gameboard now filled, calculate the percent change
-    calculatePercentChange();
 }
 
 void ConwayClassifier::calculatePercentChange() {
@@ -328,6 +332,46 @@ void ConwayClassifier::calculatePercentChange() {
         this->percentChange[i + 1 - this->statStartGen] =
                 (double) changeCount / (this->width * this->height);
     }
+}
+
+void ConwayClassifier::calculateActiveCellRatio() {
+    for (int gen = this->statStartGen; gen < this->generationCount; gen++) {
+        int activeCellCount = 0;
+        for (int y = this->y; y < this->y + this->height; y++) {
+            for (int x = this->x; x < this->x + this->width; x++) {
+                if (cellAliveRecently(gen, x, y) && cellDeadRecently(gen, x, y))
+                    activeCellCount++;
+            }
+        }
+        this->activeCellRatio[gen - this->statStartGen] =
+                (double) activeCellCount / (this->width * this->height);
+    }
+}
+
+bool ConwayClassifier::cellAliveRecently(
+        const int gen, const int x, const int y) const {
+    // generation asked for is too early to check for being alive recently so 
+    // by given definition, this method will return false
+    if (gen < this->consecutiveAliveLen)
+        return false;
+    for (int i = gen - this->consecutiveAliveLen; i <= gen; i++) {
+        if (!this->getCellVal(i, x, y))
+            return false;
+    }
+    return true;
+}
+
+bool ConwayClassifier::cellDeadRecently(
+        const int gen, const int x, const int y) const {
+    int startGen = startGen = gen - this->deadWithinLen;
+    // just in case generation requested is less than deadWithinLen
+    if (gen < this->deadWithinLen)
+        startGen = 0;
+    for (int i = startGen; i < gen; i++) {
+        if (!this->getCellVal(i, x, y))
+            return true;
+    }
+    return false;
 }
 
 long long int ConwayClassifier::get1DIndex(const int gen, const int xCoord,
@@ -390,11 +434,7 @@ void ConwayClassifier::setCellVal(const int gen, const int xCoord,
 
 double ConwayClassifier::getAliveCellRatio(const int genNum) const {
     if (genNum == -1) { // return average alive cell ratio
-        double sum = 0;
-        for (auto& ratio : this->aliveCellRatio) {
-            sum += ratio;
-        }
-        return (sum / (double) this->aliveCellRatio.size());
+        return averageVector(this->aliveCellRatio);
     } else {
         if (genNum >= this->statStartGen && genNum < this->generationCount) {
             return this->aliveCellRatio[genNum - this->statStartGen];
@@ -404,16 +444,82 @@ double ConwayClassifier::getAliveCellRatio(const int genNum) const {
 
 double ConwayClassifier::getPercentChange(const int genNum) const {
     if (genNum == -1) { // return average percent change
-        double sum = 0;
-        for (auto& percChange : this->percentChange) {
-            sum += percChange;
-        }
-        return (sum / (double) this->percentChange.size());
+        return averageVector(this->percentChange);
     } else {
         if (genNum >= this->statStartGen && genNum < this->generationCount) {
             return this->percentChange[genNum - this->statStartGen];
         } else return -1;
     }
+}
+
+double ConwayClassifier::getActiveCellRatio(const int genNum) const {
+    if (genNum == -1) { // return average
+        return averageVector(this->activeCellRatio);
+    } else {
+        if (genNum >= this->statStartGen && genNum < this->generationCount) {
+            return this->activeCellRatio[genNum - this->statStartGen];
+        } else return -1;
+    }
+}
+
+double ConwayClassifier::getExpansionRateX(const int genNum) const {
+    // can't get expansion rate on these gens
+    if (genNum == 0 || genNum >= this->generationCount)
+        return -1;
+    if (genNum == -1) { // return average
+        std::vector<double> expansionRates(this->generationCount
+                - this->statStartGen);
+        for (int i = this->statStartGen; i < this->generationCount; i++) {
+            expansionRates[i - this->statStartGen] = getExpansionRateX(i);
+        }
+        return averageVector(expansionRates);
+    }
+    return (double) (this->minMaxX[genNum].second
+            - this->minMaxX[genNum].first)
+            / (double) (this->minMaxX[genNum - 1].second
+            - this->minMaxX[genNum - 1].first);
+}
+
+double ConwayClassifier::getExpansionRateY(const int genNum) const {
+    // can't get expansion rate on these gens
+    if (genNum == 0 || genNum >= this->generationCount)
+        return -1;
+    if (genNum == -1) { // return average
+        std::vector<double> expansionRates(this->generationCount
+                - this->statStartGen);
+        for (int i = this->statStartGen; i < this->generationCount; i++) {
+            expansionRates[i - this->statStartGen] = getExpansionRateY(i);
+        }
+        return averageVector(expansionRates);
+    }
+    return (double) (this->minMaxY[genNum].second
+            - this->minMaxY[genNum].first)
+            / (double) (this->minMaxY[genNum - 1].second
+            - this->minMaxY[genNum - 1].first);
+}
+
+double ConwayClassifier::getExpansionRateArea(const int genNum) const {
+    // can't get expansion rate on these gens
+    if (genNum == 0 || genNum >= this->generationCount)
+        return -1;
+    if (genNum == -1) { // return average
+        std::vector<double> expansionRates(this->generationCount
+                - this->statStartGen);
+        for (int i = this->statStartGen; i < this->generationCount; i++) {
+            expansionRates[i - this->statStartGen] = getExpansionRateArea(i);
+        }
+        return averageVector(expansionRates);
+    }
+    return getExpansionRateX(genNum) * getExpansionRateY(genNum);
+}
+
+double
+ConwayClassifier::averageVector(const std::vector<double>& statVec) const {
+    double sum = 0;
+    for (auto& element : statVec) {
+        sum += element;
+    }
+    return (sum / statVec.size());
 }
 
 void ConwayClassifier::initializeGameBoard(const int genNum) {
@@ -430,6 +536,8 @@ void ConwayClassifier::initializeGameBoard(const int genNum) {
     this->aliveCellRatio.resize(this->generationCount - this->statStartGen);
     // set this->percentChange to correct length as well
     this->percentChange.resize(this->generationCount - this->statStartGen);
+    // same here :)
+    this->activeCellRatio.resize(this->generationCount - this->statStartGen);
 }
 
 void ConwayClassifier::printGameBoard(const int genNum, std::ostream& os,
