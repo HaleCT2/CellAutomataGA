@@ -5,7 +5,7 @@
  * https://www.geeksforgeeks.org/genetic-algorithms/
  *
  * Created on October 14, 2020
- * Last Updated on February 22, 2021
+ * Last Updated on March 22, 2021
  */
 
 #include <bits/stdc++.h>
@@ -28,6 +28,10 @@ int elitismPercent;
 int crossoverRate;
 int mutationRate;
 int timeElapsed;
+
+double activeWeight;
+double percentWeight;
+double aliveWeight;
 
 // Possible characters to make up genome. Note that the genome is a binary
 // number represented as a string for simplicity.
@@ -184,28 +188,28 @@ double Individual::cal_fitness() {
     ConwayClassifier c(filePath + "/" + fileName, timeElapsed, 2, 30);
 
     // Calculate Metrics and Weights
-    double AliveCell = c.getAliveCellRatio();
-    double PercentChange = c.getPercentChange();
-    double ActiveCell = c.getActiveCellRatio();
+    double aliveCell = c.getAliveCellRatio();
+    double percentChange = c.getPercentChange();
+    double activeCell = c.getActiveCellRatio();
 
-    double AliveWeight = 0;
-    double PercentWeight = 0;
-    double ActiveWeight = 0;
+    double aliveValue = 0;
+    double percentValue = 0;
+    double activeValue = 0;
 
     // Determine Closeness to 'Ideal' Metrics
-    if (AliveCell > 0 && AliveCell < 0.38) {
-        AliveWeight = (0.19  - abs(AliveCell - 0.19))/0.19;
+    if (aliveCell > 0 && aliveCell < 0.38) {
+        aliveValue = (0.19  - abs(aliveCell - 0.19))/0.19;
     }
-    if (PercentChange > 0 && PercentChange < 0.30) {
-        PercentWeight = (0.15  - abs(PercentChange - 0.15))/0.15;
+    if (percentChange > 0 && percentChange < 0.30) {
+        percentValue = (0.15  - abs(percentChange - 0.15))/0.15;
     }
 
-    if (ActiveCell > 0 && ActiveCell < 0.04) {
-        ActiveWeight = (0.02 - abs(ActiveCell - 0.02))/0.02;
+    if (activeCell > 0 && activeCell < 0.04) {
+        activeValue = (0.02 - abs(activeCell - 0.02))/0.02;
     }
     
-     // Return Fitness Value (Max of 6, Min of 1)
-    return c.classification() + AliveWeight + PercentWeight + ActiveWeight;
+     // Return Fitness Value with Weights from Config File
+    return c.classification() + (aliveWeight * aliveValue) + (percentWeight * percentValue) + (activeWeight * activeValue);
 }; 
 
 /**
@@ -279,6 +283,7 @@ void cal_PopFitness(vector<Individual> &population) {
  * @return int exit code (0 if successful)
  */
 int main() {
+    // Read Config File
     xml_document<> doc;
 	xml_node<> * root_node;
 	// Read the xml file into a vector
@@ -287,14 +292,19 @@ int main() {
 	buffer.push_back('\0');
 	// Parse the buffer using the xml file parsing library into doc 
 	doc.parse<0>(&buffer[0]);
-	// Find our root node
+	// Find our root node and Config Values
 	root_node = doc.first_node("System");
     timeElapsed = atoi(root_node->first_node("CellAutomata")->first_node("TimeElapsed")->value());
     populationSize = atoi(root_node->first_node("GeneticAlgo")->first_node("PopulationSize")->value());
     elitismPercent = atoi(root_node->first_node("GeneticAlgo")->first_node("ElitismPerc")->value());
     crossoverRate = atoi(root_node->first_node("GeneticAlgo")->first_node("CrossoverRate")->value());
     mutationRate = atoi(root_node->first_node("GeneticAlgo")->first_node("MutationRate")->value());
-    // Create initial population
+
+    activeWeight = atof(root_node->first_node("GeneticAlgo")->first_node("FitnessFunction")->first_node("ActiveWeight")->value());
+    percentWeight = atof(root_node->first_node("GeneticAlgo")->first_node("FitnessFunction")->first_node("PercentWeight")->value());
+    aliveWeight = atof(root_node->first_node("GeneticAlgo")->first_node("FitnessFunction")->first_node("AliveWeight")->value());
+
+    // Create initial population with random rulesets
     srand((unsigned)(time(0))); 
     string rules;
     vector<Individual> population; 
@@ -333,19 +343,19 @@ int main() {
             Individual parent1 = population[r]; 
             r = random_num(0, c); 
             Individual parent2 = population[r]; 
-            Individual offspring = parent1.mate(parent2); 
+            Individual offspring = parent1.mate(parent2);
+            // Append to New Generation
             new_generation.push_back(offspring);  
-        } 
+        }
+        // Assign New Population
         population = new_generation;
         // Print Top Performer
-        rules = decode(population[0].chromosome);
-        printf("%8s%20s%13s%5.3f%16s%d\n\n", "Ruleset: ", rules.c_str(), "Fitness: ", 
-            population[0].fitness, "Generation: ", generation);
+        printf("%8s%20s%13s%5.3f%16s%d\n\n", "Ruleset: ", decode(population[0].chromosome).c_str(),
+            "Fitness: ", population[0].fitness, "Generation: ", generation);
         generation++; 
     }
     // Print Top Performer of Last Generation
-    rules = decode(population[0].chromosome);
-    printf("%8s%20s%13s%5.3f%16s%d\n", "Ruleset: ", rules.c_str(), "Fitness: ", 
-        population[0].fitness, "Generation: ", generation);
+    printf("%8s%20s%13s%5.3f%16s%d\n", "Ruleset: ", decode(population[0].chromosome).c_str(),
+        "Fitness: ", population[0].fitness, "Generation: ", generation);
     dump();
 }
