@@ -28,6 +28,7 @@ int elitismPercent;
 int crossoverRate;
 int mutationRate;
 int timeElapsed;
+int convergeGen;
 
 double activeWeight;
 double percentWeight;
@@ -278,12 +279,10 @@ void cal_PopFitness(vector<Individual> &population) {
 }
 
 /**
- * Main method to drive GA
+ *  Method to read and assign Global Variables based on System-wide Config File
  * 
- * @return int exit code (0 if successful)
  */
-int main() {
-    // Read Config File
+void readConfig() {
     xml_document<> doc;
 	xml_node<> * root_node;
 	// Read the xml file into a vector
@@ -299,10 +298,21 @@ int main() {
     elitismPercent = atoi(root_node->first_node("GeneticAlgo")->first_node("ElitismPerc")->value());
     crossoverRate = atoi(root_node->first_node("GeneticAlgo")->first_node("CrossoverRate")->value());
     mutationRate = atoi(root_node->first_node("GeneticAlgo")->first_node("MutationRate")->value());
+    convergeGen = atoi(root_node->first_node("GeneticAlgo")->first_node("ConvergeGen")->value());
 
     activeWeight = atof(root_node->first_node("GeneticAlgo")->first_node("FitnessFunction")->first_node("ActiveWeight")->value());
     percentWeight = atof(root_node->first_node("GeneticAlgo")->first_node("FitnessFunction")->first_node("PercentWeight")->value());
     aliveWeight = atof(root_node->first_node("GeneticAlgo")->first_node("FitnessFunction")->first_node("AliveWeight")->value());
+}
+
+/**
+ * Main method to drive GA
+ * 
+ * @return int exit code (0 if successful)
+ */
+int main() {
+    // Read Config File
+    readConfig();
 
     // Create initial population with random rulesets
     srand((unsigned)(time(0))); 
@@ -321,7 +331,7 @@ int main() {
         cal_PopFitness(population);
         sort(population.begin(), population.end());
         // Converge after five Generations
-        if(generation == 5) { 
+        if(generation == convergeGen) { 
             found = true; 
             break; 
         } 
