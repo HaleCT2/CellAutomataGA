@@ -7,14 +7,15 @@
         <TimeElapsed>100</TimeElapsed>
     </CellAutomata>
     <GeneticAlgo>
-        <CurrentGeneration>6</CurrentGeneration>
+        <CurrentGeneration>1</CurrentGeneration>
         <PopulationSize>50</PopulationSize>
         <MutationRate>10</MutationRate>
         <CrossoverRate>40</CrossoverRate>
         <ElitismPerc>10</ElitismPerc>
         <FitnessFunction>
-            <Class2Weight>0</Class2Weight>
-            <Class3Weight>0</Class3Weight>
+            <ActiveWeight>0.9</ActiveWeight>
+            <PercentWeight>1.1</PercentWeight>            
+            <AliveWeight>0.9</AliveWeight>
         </FitnessFunction>
     </GeneticAlgo>
     <FileLocations>
