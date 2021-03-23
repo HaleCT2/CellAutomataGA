@@ -29,10 +29,18 @@ int crossoverRate;
 int mutationRate;
 int timeElapsed;
 int convergeGen;
+int maxThreadNum;
+int statCalcPercent;
 
 double activeWeight;
 double percentWeight;
 double aliveWeight;
+double activeMin;
+double activeMax;
+double percentMin;
+double percentMax;
+double aliveMin;
+double aliveMax;
 
 // Possible characters to make up genome. Note that the genome is a binary
 // number represented as a string for simplicity.
@@ -188,7 +196,7 @@ double Individual::cal_fitness() {
     string fileName = decode(this->chromosome);
     std::replace(fileName.begin(), fileName.end(), '/', '_');
     // Create CC Object 
-    ConwayClassifier c(filePath + "/" + fileName, timeElapsed, 2, 30);
+    ConwayClassifier c(filePath + "/" + fileName, timeElapsed, maxThreadNum, statCalcPercent);
 
     // Calculate Metrics and Weights
     double aliveCell = c.getAliveCellRatio();
@@ -200,15 +208,17 @@ double Individual::cal_fitness() {
     double activeValue = 0;
 
     // Determine Closeness to 'Ideal' Metrics
-    if (aliveCell > 0 && aliveCell < 0.38) {
-        aliveValue = (0.19  - abs(aliveCell - 0.19))/0.19;
+    float halfMetric = aliveMax / 2;
+    if (aliveCell > aliveMin && aliveCell < aliveMax) {
+        aliveValue = (halfMetric  - abs(aliveCell - halfMetric)) / halfMetric;
     }
-    if (percentChange > 0 && percentChange < 0.30) {
-        percentValue = (0.15  - abs(percentChange - 0.15))/0.15;
+    halfMetric = percentMax / 2;
+    if (percentChange > percentMin && percentChange < percentMax) {
+        percentValue = (halfMetric  - abs(percentChange - halfMetric)) / halfMetric;
     }
-
-    if (activeCell > 0 && activeCell < 0.04) {
-        activeValue = (0.02 - abs(activeCell - 0.02))/0.02;
+    halfMetric = activeMax / 2;
+    if (activeCell > activeMin && activeCell < activeMax) {
+        activeValue = (halfMetric  - abs(activeCell - halfMetric)) / halfMetric;
     }
     
      // Return Fitness Value with Weights from Config File
@@ -301,10 +311,18 @@ void readConfig() {
     crossoverRate = atoi(root_node->first_node("GeneticAlgo")->first_node("CrossoverRate")->value());
     mutationRate = atoi(root_node->first_node("GeneticAlgo")->first_node("MutationRate")->value());
     convergeGen = atoi(root_node->first_node("GeneticAlgo")->first_node("ConvergeGen")->value());
+    maxThreadNum = atoi(root_node->first_node("ConwayClassifier")->first_node("MaxThreadNumber")->value());
+    statCalcPercent = atoi(root_node->first_node("ConwayClassifier")->first_node("StatCalculationPercent")->value());
 
-    activeWeight = atof(root_node->first_node("GeneticAlgo")->first_node("FitnessFunction")->first_node("ActiveWeight")->value());
-    percentWeight = atof(root_node->first_node("GeneticAlgo")->first_node("FitnessFunction")->first_node("PercentWeight")->value());
-    aliveWeight = atof(root_node->first_node("GeneticAlgo")->first_node("FitnessFunction")->first_node("AliveWeight")->value());
+    activeWeight = atof(root_node->first_node("GeneticAlgo")->first_node("FitnessFunction")->first_node("Weights")->first_node("ActiveWeight")->value());
+    percentWeight = atof(root_node->first_node("GeneticAlgo")->first_node("FitnessFunction")->first_node("Weights")->first_node("PercentWeight")->value());
+    aliveWeight = atof(root_node->first_node("GeneticAlgo")->first_node("FitnessFunction")->first_node("Weights")->first_node("AliveWeight")->value());
+    activeMin = atof(root_node->first_node("GeneticAlgo")->first_node("FitnessFunction")->first_node("IdealMetrics")->first_node("Active")->first_node("Min")->value());
+    activeMax = atof(root_node->first_node("GeneticAlgo")->first_node("FitnessFunction")->first_node("IdealMetrics")->first_node("Active")->first_node("Max")->value());
+    percentMin = atof(root_node->first_node("GeneticAlgo")->first_node("FitnessFunction")->first_node("IdealMetrics")->first_node("Percent")->first_node("Min")->value());
+    percentMax = atof(root_node->first_node("GeneticAlgo")->first_node("FitnessFunction")->first_node("IdealMetrics")->first_node("Percent")->first_node("Max")->value());
+    aliveMin = atof(root_node->first_node("GeneticAlgo")->first_node("FitnessFunction")->first_node("IdealMetrics")->first_node("Alive")->first_node("Min")->value());
+    aliveMax = atof(root_node->first_node("GeneticAlgo")->first_node("FitnessFunction")->first_node("IdealMetrics")->first_node("Alive")->first_node("Max")->value());
 }
 
 /**
