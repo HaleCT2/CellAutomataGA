@@ -286,7 +286,7 @@ void cal_PopFitness(vector<Individual> &population) {
     for(Individual& i : population) {
         i.fitness = i.cal_fitness();
         // Print each Individual's Fitness
-        printf("%8s%20s%13s%5.3f\n", "Ruleset: ", decode(i.chromosome).c_str(), "Fitness: ", i.fitness);
+        printf("%8s%27s%13s%5.3f\n", "Ruleset: ", decode(i.chromosome).c_str(), "Fitness: ", i.fitness);
     }
 }
 
@@ -379,12 +379,12 @@ int main() {
         // Assign New Population
         population = new_generation;
         // Print Top Performer
-        printf("%8s%20s%13s%5.3f%16s%d\n\n", "Ruleset: ", decode(population[0].chromosome).c_str(),
+        printf("%8s%23s%13s%5.3f%16s%d\n\n", "Top Ruleset: ", decode(population[0].chromosome).c_str(),
             "Fitness: ", population[0].fitness, "Generation: ", generation);
         generation++; 
     }
     // Print Top Performer of Last Generation
-    printf("%8s%20s%13s%5.3f%16s%d\n", "Ruleset: ", decode(population[0].chromosome).c_str(),
+    printf("%8s%23s%13s%5.3f%16s%d\n", "Top Ruleset: ", decode(population[0].chromosome).c_str(),
         "Fitness: ", population[0].fitness, "Generation: ", generation);
     dump();
 }
