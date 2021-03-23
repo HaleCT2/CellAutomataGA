@@ -56,7 +56,9 @@ int random_num(int start, int end) {
  */
 void dump() {
     const char *command = "rm rule_sets*.txt";
-    system(command);
+    int result = system(command);
+    if (result == -1)
+        throw "Command rm run unsuccessfully";
 }
 
 /**
@@ -124,7 +126,7 @@ char mutated_genes() {
 string create_gnome() { 
     int len = 18; // Binary String Size 
     string gnome = ""; 
-    for(int i = 0;i<len;i++) {
+    for(int i = 0; i < len;i++) {
         gnome += mutated_genes(); 
     }
     return gnome; 
@@ -161,7 +163,7 @@ Individual Individual::mate(Individual par2) {
     string child_chromosome = ""; 
     int len = chromosome.size(); 
     // Determine Chromosome based on Parents and Mutation Rate
-    for(int i = 0;i<len;i++) {
+    for(int i = 0; i < len; i++) {
         float p = random_num(0, 100)/100.;
         if(p < (float)(100-mutationRate)/200) {
             child_chromosome += chromosome[i]; 
@@ -320,7 +322,7 @@ int main() {
     vector<Individual> population; 
     bool found = false;
     generatePatterns(true); // Reset XML
-    for(int i = 0;i<populationSize;i++) { 
+    for(int i = 0;i < populationSize; i++) { 
         string gnome = create_gnome(); 
         population.push_back(Individual(gnome)); 
     } 
@@ -338,16 +340,15 @@ int main() {
         vector<Individual> new_generation; 
         // Send the top percentage through to the next generation with no
         // crossover or mutation
-        int s = (elitismPercent*populationSize)/100; 
-        for(int i = 0;i<s;i++) {
+        int s = (elitismPercent * populationSize) / 100; 
+        for(int i = 0; i < s; i++) {
             new_generation.push_back(population[i]); 
         }
 
         // Crossover and mutate the rest of the population
-        s = ((100-elitismPercent)*populationSize)/100; 
-        int c = (crossoverRate*populationSize)/100;
-        for(int i = 0;i<s;i++) { 
-            int len = population.size(); 
+        s = ((100 - elitismPercent) * populationSize) / 100; 
+        int c = (crossoverRate * populationSize) / 100;
+        for(int i = 0; i < s; i++) {  
             // Choose random parent from top percentage of performers
             int r = random_num(0, c); 
             Individual parent1 = population[r]; 

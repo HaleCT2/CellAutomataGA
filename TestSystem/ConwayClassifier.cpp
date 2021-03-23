@@ -363,7 +363,7 @@ bool ConwayClassifier::cellAliveRecently(
 
 bool ConwayClassifier::cellDeadRecently(
         const int gen, const int x, const int y) const {
-    int startGen = startGen = gen - this->deadWithinLen;
+    int startGen = gen - this->deadWithinLen;
     // just in case generation requested is less than deadWithinLen
     if (gen < this->deadWithinLen)
         startGen = 0;
