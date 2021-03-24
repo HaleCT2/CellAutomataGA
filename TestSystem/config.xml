@@ -7,33 +7,33 @@
         <TimeElapsed>100</TimeElapsed>
     </CellAutomata>
     <GeneticAlgo>
-        <CurrentGeneration>0</CurrentGeneration>
+        <CurrentGeneration>2</CurrentGeneration>
         <PopulationSize>50</PopulationSize>
         <MutationRate>20</MutationRate>
-        <CrossoverRate>40</CrossoverRate>
+        <CrossoverRate>30</CrossoverRate>
         <ElitismPerc>10</ElitismPerc>
         <FitnessFunction>
             <Weights>
-                <ActiveWeight>1.1</ActiveWeight>
-                <PercentWeight>1.1</PercentWeight>          
-                <AliveWeight>0.9</AliveWeight>
+                <ActiveWeight>1.0</ActiveWeight>
+                <PercentWeight>1.0</PercentWeight>          
+                <AliveWeight>1.0</AliveWeight>
             </Weights>
             <IdealMetrics>
                 <Active>
                     <Min>0</Min>
-                    <Max>0.04</Max>
+                    <Max>0.05</Max>
                 </Active>
                 <Percent>
                     <Min>0</Min>
-                    <Max>0.30</Max>
+                    <Max>0.40</Max>
                 </Percent>
                 <Alive>
                     <Min>0</Min>
-                    <Max>0.38</Max>
+                    <Max>0.49</Max>
                 </Alive>
             </IdealMetrics>
         </FitnessFunction>
-        <ConvergeGen>10</ConvergeGen>
+        <ConvergeGen>5</ConvergeGen>
     </GeneticAlgo>
     <ConwayClassifier>
         <MaxThreadNumber>2</MaxThreadNumber>
