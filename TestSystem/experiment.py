@@ -31,13 +31,13 @@ tree.write('config.xml')
 # Loop through Search Space
 for i in range(10):
     # Run GA and save output to logs
-    os.system("unbuffer ./main.exe | tee " + str(i) + "test.log")
+    os.system("./main.exe | tee " + str(i) + "test.log")
     # Iterate over search space
-    activeMin = activeMin + .05
-    activeMax = activeMax + .05
+    aMin = aMin + .05
+    aMax = aMax + .05
     # Update Config File
     activeMin.text = str(aMin)
     activeMax.text = str(aMax)
     tree.write('config.xml')
     # Remove Past Simulation Files
-    os.system("rm -r /home/CellAutomataGA/Desktop/Golly Patterns/Simulation")
+    os.system("rm -r /home/CellAutomataGA/Desktop/Golly\ Patterns/Simulation")
