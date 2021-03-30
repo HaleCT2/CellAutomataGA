@@ -20,20 +20,20 @@
             </Weights>
             <IdealMetrics>
                 <Active>
-                    <Min>0</Min>
+                    <Min>0.0</Min>
                     <Max>0.05</Max>
                 </Active>
                 <Percent>
-                    <Min>0</Min>
-                    <Max>0.40</Max>
+                    <Min>0.0</Min>
+                    <Max>0.4</Max>
                 </Percent>
                 <Alive>
-                    <Min>0</Min>
+                    <Min>0.0</Min>
                     <Max>0.49</Max>
                 </Alive>
             </IdealMetrics>
         </FitnessFunction>
-        <ConvergeGen>5</ConvergeGen>
+        <ConvergeGen>1</ConvergeGen>
     </GeneticAlgo>
     <ConwayClassifier>
         <MaxThreadNumber>2</MaxThreadNumber>
