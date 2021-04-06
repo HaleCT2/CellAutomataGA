@@ -1,4 +1,4 @@
-## ECE448-CellAutomataGA
+## CellAutomataGA
 A collection of Software and Scripts built and used in the Research of our Senior Design Project. Our goal was to determine if evolutionary algorithms could find emerging living cellular automata systems. Using a custom Genetic Algorithm, these tools have allowed us to explore different two-dimensional Automata and find new and interesting rulesets.
 
 ## Motivation
