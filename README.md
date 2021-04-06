@@ -5,14 +5,16 @@ A collection of Software and Scripts built and used in the Research of our Senio
 This project stemmed from planned research from our Project Advisor, [Dr. Peter Jamieson](http://www.drpeterjamieson.com/).
  
 ## Screenshots
+<center>
+
 | ![Terminal Screenshot of Genetic Algorithm](https://i.postimg.cc/j5fKgQq6/terminal.jpg) | 
 |:--:| 
 | *Terminal Screenshot of Genetic Algorithm in Ubuntu VM* |
 
-<center>
 | ![B3/S02378 Simulation](https://i.postimg.cc/zXm0WwRw/b3-s02378.gif) ![B37/S23678 Simulation](https://i.postimg.cc/CLLXdsyv/b37-s23678-rle.gif) ![B3/S01278 Simulation](https://i.postimg.cc/L6wDRtmg/b3-s01278.gif)| 
 |:--:| 
 | *Some Interesting Cellular Automaton found by our Genetic Algorithm* |
+
 </center>
 
 ## Requirements & Dependencies 
