@@ -1,7 +1,7 @@
-# File:         golly-script-test.py
+# File:         generateSpecRule.py
 # Author:       Carter Hale
 # Date Created: September 9, 2020
-# Last Updated: March 15, 2021
+# Last Updated: March 24, 2021
 
 # Golly doesn't offer standalone Library so the Module is instantiated
 # when the Executable is launched. Script can only be ran from within Golly.
@@ -43,6 +43,7 @@ def make_rule():
     return rule
 # -----------------------------------------------------------------------------
 
+
 # -----------------------------------------------------------------------------
 # Function to compare RLE Files for Homogeneity
 def compare_rle(fileName1, fileName2):
@@ -63,61 +64,57 @@ customRule = g.getstring("If you wish to use a Specific Rule,\n" +
                          "Otherwise, press 'OK' for Random Generation:",
                          "Random", "Specific Rule Set")
 
-numPopulation = g.getstring("Enter Population Size of Individual CA Rules:\n" +
-                            "(Note: Does not work with Specific Rule)",
-                            "1", "Population Size")
-
 numGenerations = g.getstring("Enter Number of CA Generations to Explore\n" +
                              "for Each Individual Rule in the Population:",
                              "100", "Number of Generations")
 
 # Loop Process for Each Individual Rule in the Population
-for j in range(int(numPopulation)):
-    # Create New Window and Fill X% of YxY Square Grid with Random Noise
-    g.new("test-pattern")
-    g.select([0, 0, int(gridSize), int(gridSize)])
-    g.randfill(int(fillPerc))
 
-    # Declare Algorithm and Rule
-    g.setalgo("QuickLife")
+# Create New Window and Fill X% of YxY Square Grid with Random Noise
+g.new("test-pattern")
+g.select([0, 0, int(gridSize), int(gridSize)])
+g.randfill(int(fillPerc))
 
-    if (customRule == "Random"):
-        rule = make_rule()
-    else:
-        rule = customRule.lower()
+# Declare Algorithm and Rule
+g.setalgo("QuickLife")
 
-    g.setrule(rule)
+if (customRule == "Random"):
+    rule = make_rule()
+else:
+    rule = customRule.lower()
 
-    # Creates "Test Patterns" Folder within Directory if it does not Exist
-    fileLoc = g.getdir("rules") + "Test Patterns/"
-    if (os.path.isdir(fileLoc) is not True):
-        os.mkdir(fileLoc)
+g.setrule(rule)
 
-    # Creates Subfolder specific to Rule Set to hold Generation Patterns
-    fileLoc += rule.replace("/", "_") + "/"
-    if (os.path.isdir(fileLoc) is not True):
-        os.mkdir(fileLoc)
+# Creates "Test Patterns" Folder within Directory if it does not Exist
+fileLoc = g.getdir("rules") + "Test Patterns/"
+if (os.path.isdir(fileLoc) is not True):
+    os.mkdir(fileLoc)
 
-    # Prepare File Names for each Genereration's Pattern File
-    fileNamePrefix = fileLoc + rule.replace("/", "_") + "_"
+# Creates Subfolder specific to Rule Set to hold Generation Patterns
+fileLoc += rule.replace("/", "_") + "/"
+if (os.path.isdir(fileLoc) is not True):
+    os.mkdir(fileLoc)
 
-    # Loop and Save Patterns
-    for i in range(int(numGenerations) + 1):
-        # Stop Loop if Universe is Empty
-        if (g.empty()):
-            break
+# Prepare File Names for each Genereration's Pattern File
+fileNamePrefix = fileLoc + rule.replace("/", "_") + "_"
 
-        # Determine File Names
-        fileNameRLE = fileNamePrefix + str(i) + ".rle"
-        # Determine Previous File Names
-        fileNamePrevRLE = fileNamePrefix + str(i-1) + ".rle"
+# Loop and Save Patterns
+for i in range(int(numGenerations) + 1):
+    # Stop Loop if Universe is Empty
+    if (g.empty()):
+        break
 
-        g.save(fileNameRLE, "rle")
-        # Compare Previous Generation to Determine Class I Systems
-        if (i > 0 and compare_rle(fileNameRLE, fileNamePrevRLE)):
-            break
+    # Determine File Names
+    fileNameRLE = fileNamePrefix + str(i) + ".rle"
+    # Determine Previous File Names
+    fileNamePrevRLE = fileNamePrefix + str(i-1) + ".rle"
 
-        g.run(1)
+    g.save(fileNameRLE, "rle")
+    # Compare Previous Generation to Determine Class I Systems
+    if (i > 0 and compare_rle(fileNameRLE, fileNamePrevRLE)):
+        break
+
+    g.run(1)
 
 # Prepare for Viewing
 g.fit()

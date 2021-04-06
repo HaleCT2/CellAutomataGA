@@ -1,6 +1,12 @@
 #ifndef CONWAY_CLASSIFIER_CPP
 #define CONWAY_CLASSIFIER_CPP
 
+/* 
+ * File:   ConwayClassifier.cpp
+ * Author: Eric Schonauer
+ *
+ */
+
 #include <string>
 #include <sstream>
 #include <vector>
@@ -72,17 +78,17 @@ ConwayClassifier::extractRule(const std::string& rleDataDirPath) const {
 
 void ConwayClassifier::checkForClass1(const std::string& dataDirPath,
         const int genNum) {
-    auto dirIter = std::filesystem::directory_iterator(dataDirPath);
-    int fileCount = 0;
-
-    for (auto& entry : dirIter) {
-        if (entry.is_regular_file()) {
-            ++fileCount;
-        }
-    }
-    if (fileCount != (genNum + 1)) {
-        this->classNum = 1;
-    }
+       auto dirIter = std::filesystem::directory_iterator(dataDirPath);
+       int fileCount = 0;
+    
+       for (auto& entry : dirIter) {
+           if (entry.is_regular_file()) {
+               ++fileCount;
+           }
+       }
+       if (fileCount != (genNum + 1)) {
+           this->classNum = 1;
+       }
 }
 
 void ConwayClassifier::checkForClass2(std::vector<std::ifstream*>& dataFiles) {
@@ -309,8 +315,12 @@ void ConwayClassifier::finishStats() {
 void ConwayClassifier::calculateAliveCellRatio() {
     // turn counts into ratios by dividing number of alive cells by the area of
     // the board
-    for (auto& elt : this->aliveCellRatio) {
-        elt = elt / (this->width * this->height);
+    for (int gen = this->statStartGen; gen < this->generationCount; gen++) {
+        int width = abs(this->minMaxX[gen].second - this->minMaxX[gen].first);
+        int height = abs(this->minMaxY[gen].second - this->minMaxY[gen].first);
+        this->aliveCellRatio[gen - this->statStartGen] =
+                this->aliveCellRatio[gen - this->statStartGen]
+                / (width * height);
     }
 }
 
@@ -319,18 +329,22 @@ void ConwayClassifier::calculatePercentChange() {
     // (n - 1), need to start from statStartGen - 1 and then stop at
     // generationCount - 2 since you would then be looking at generationCount-1
     // and that is the maximum generation index
-    for (int i = this->statStartGen - 1; i <= this->generationCount - 2; i++) {
+    for (int gen = this->statStartGen - 1; gen <= this->generationCount - 2; gen++) {
         int changeCount = 0;
         for (int y = this->y; y < this->y + this->height; y++) {
             for (int x = this->x; x < this->x + this->width; x++) {
-                if (this->getCellVal(i, x, y) != this->getCellVal(i + 1, x, y))
+                if (this->getCellVal(gen, x, y) != this->getCellVal(gen + 1, x, y))
                     changeCount++;
             }
         }
         // add one since i actually refers to gen n - 1 when calculating
         // percent change for generation n
-        this->percentChange[i + 1 - this->statStartGen] =
-                (double) changeCount / (this->width * this->height);
+        int width = abs(this->minMaxX[gen + 1].second
+                - this->minMaxX[gen + 1].first);
+        int height = abs(this->minMaxY[gen + 1].second
+                - this->minMaxY[gen + 1].first);
+        this->percentChange[gen + 1 - this->statStartGen] =
+                (double) changeCount / (width * height);
     }
 }
 
@@ -343,8 +357,10 @@ void ConwayClassifier::calculateActiveCellRatio() {
                     activeCellCount++;
             }
         }
+        int width = abs(this->minMaxX[gen].second - this->minMaxX[gen].first);
+        int height = abs(this->minMaxY[gen].second - this->minMaxY[gen].first);
         this->activeCellRatio[gen - this->statStartGen] =
-                (double) activeCellCount / (this->width * this->height);
+                (double) activeCellCount / (width * height);
     }
 }
 

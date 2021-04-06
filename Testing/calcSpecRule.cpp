@@ -1,3 +1,10 @@
+/*
+ * File:         calcSpecRule.cpp
+ * Author:       Carter Hale
+ * Date Created: March 24, 2021
+ * Last Updated: April 6, 2021
+*/
+
 #include <iostream>
 #include "ConwayClassifier.h"
 

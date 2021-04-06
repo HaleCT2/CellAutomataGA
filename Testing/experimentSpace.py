@@ -1,15 +1,12 @@
-# File:         experiment.py
+# File:         experimentSpace.py
 # Author:       Carter Hale, Owen Hichens
 # Date Created: March 24, 2021
-# Last Updated: March 29, 2021
+# Last Updated: April 6, 2021
 
 # Element Tree for XML Parsing
 import xml.etree.ElementTree as ET
 # OS for System Calls to Run GA
 import os
-
-# THIS IS A SUPER BEGINNING, WE CAN INCORPORATE ALL THE METRICS AND WEIGHTS AND GET USER INPUT FOR
-# WHAT WE WANT TO LOOK AT AND WHERE WE WANNA INTERATE THROUGH
 
 # Retrieve Settings from XML
 tree = ET.parse('config.xml')
@@ -59,4 +56,4 @@ for i in range(3):
     tree.write('config.xml')
 
     # Remove Past Simulation Files
-    os.system("rm -r /home/CellAutomataGA/Desktop/Golly\ Patterns/Simulation")
+    os.system("rm -r /home/CellAutomataGA/Desktop/Golly Patterns/Simulation")

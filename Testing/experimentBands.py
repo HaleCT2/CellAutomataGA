@@ -1,7 +1,7 @@
-# File:         experimentTest.py
-# Author:       Carter Hale, Owen Hichens
+# File:         experimentBands.py
+# Author:       Carter Hale
 # Date Created: March 24, 2021
-# Last Updated: March 30, 2021
+# Last Updated: April 6, 2021
 
 # Element Tree for XML Parsing
 import xml.etree.ElementTree as ET
@@ -72,4 +72,4 @@ for i in range(bandSize):
     tree.write('config.xml')
 
     # Remove Past Simulation Files
-    os.system("rm -r /home/CellAutomataGA/Desktop/Golly\ Patterns/Simulation")
+    os.system("rm -r /home/CellAutomataGA/Desktop/Golly Patterns/Simulation")

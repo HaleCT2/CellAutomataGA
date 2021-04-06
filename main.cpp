@@ -1,7 +1,7 @@
 /* 
  * File:   main.cpp
  * Author: Owen Hichens, Carter Hale
- * Based on Genetic Algorithm found at
+ * Originally Based on Genetic Algorithm found at
  * https://www.geeksforgeeks.org/genetic-algorithms/
  *
  * Created on October 14, 2020
