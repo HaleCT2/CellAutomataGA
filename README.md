@@ -9,9 +9,14 @@ This project stemmed from planned research from our Project Advisor, [Dr. Peter 
 |:--:| 
 | *Terminal Screenshot of Genetic Algorithm in Ubuntu VM* |
 
+<p align="center">
+
 | ![B3/S02378 Simulation](https://i.postimg.cc/zXm0WwRw/b3-s02378.gif) ![B37/S23678 Simulation](https://i.postimg.cc/CLLXdsyv/b37-s23678-rle.gif) ![B3/S01278 Simulation](https://i.postimg.cc/L6wDRtmg/b3-s01278.gif)| 
 |:--:| 
 | *Some Interesting Cellular Automaton found by our Genetic Algorithm* |
+
+</p>
+
 ## Requirements & Dependencies 
 The project was built in a VM of Ubuntu 20.04 LTS. The simulations needed to compute our Fitness were ran on [Golly](http://golly.sourceforge.net/), an open-source application built to explore different Cellular Automata. The Algorithm was developed in C++ and we use Python 3 Scripts to interface with Golly. We also make use of [RapidXML](http://rapidxml.sourceforge.net/)'s C++ Library to read our Configuration before any testing.
 
