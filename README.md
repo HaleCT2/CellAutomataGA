@@ -7,18 +7,28 @@ This project stemmed from planned research from our Project Advisor, [Dr. Peter 
 ## Screenshots
 <center>
 
-| ![Terminal Screenshot of Genetic Algorithm](https://i.postimg.cc/j5fKgQq6/terminal.jpg) | 
+| ![Terminal Screenshot of Genetic Algorithm](https://i.postimg.cc/xT8LQ4k5/Terminal.jpg) | 
 |:--:| 
-| *Terminal Screenshot of Genetic Algorithm in Ubuntu VM* |
+| *Terminal Output of Genetic Algorithm in Ubuntu VM* |
 
-| ![B3/S02378 Simulation](https://i.postimg.cc/zXm0WwRw/b3-s02378.gif) ![B37/S23678 Simulation](https://i.postimg.cc/CLLXdsyv/b37-s23678-rle.gif) ![B3/S01278 Simulation](https://i.postimg.cc/L6wDRtmg/b3-s01278.gif)| 
+<br />
+
+| ![B01568/S2 Simulation](https://i.postimg.cc/d1gJg3gG/b01568-s2.gif) | 
 |:--:| 
-| *Some Interesting Cellular Automaton found by our Genetic Algorithm* |
+| *Emergent Cellular Automaton (B01568/S2) found by our Genetic Algorithm* |
+
+<br />
+
+| ![B3/S02378 Simulation](https://i.postimg.cc/13S39gXH/b3-s02378.gif) | 
+|:--:| 
+| *Another Cellular Automaton (B3/S02378), similar to Conway's Game of Life (B3/S23)* |
+
+<br />
 
 </center>
 
 ## Requirements & Dependencies 
-The project was built in a VM of Ubuntu 20.04 LTS. The simulations needed to compute our Fitness were ran on [Golly](http://golly.sourceforge.net/), an open-source application built to explore different Cellular Automata. The Algorithm was developed in C++ and we use Python 3 Scripts to interface with Golly. We also make use of [RapidXML](http://rapidxml.sourceforge.net/)'s C++ Library to read our Configuration before any testing.
+The project was built in a VM of Ubuntu 20.04 LTS. The simulations needed to compute our Fitness were ran on [Golly](http://golly.sourceforge.net/), an open-source application built to explore different Cellular Automata. The Algorithm was developed with C++17 and used Python 3 Scripts to interface with Golly. We also make use of [RapidXML](http://rapidxml.sourceforge.net/)'s C++ Library to read our Configuration before any testing.
 
 ## Features
 This project finds emergent Cellular Automata through the simulation of many rulesets. When properly tuned, the algorithm has found multiple interesting rulesets similar to Conway's Game of Life. This Repository also includes testing software to furthur experiment with known and unknown Cellular Automata, with the goal being to tune our Genetic Algorithm even further. 
