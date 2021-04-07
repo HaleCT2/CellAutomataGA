@@ -32,7 +32,7 @@ The project was built in a VM of Ubuntu 20.04 LTS. The simulations needed to com
 This project finds emergent Cellular Automata through the simulation of many rulesets. When properly tuned, the algorithm has found multiple interesting rulesets similar to Conway's Game of Life. This Repository also includes testing software to furthur experiment with known and unknown Cellular Automata, with the goal being to tune our Genetic Algorithm even further. 
 
 ## Installation
-This Software Suite has many relational dependencies between the Scripts and Applications. Additionally, there are filesystem connections that need sorted out before being able to successfully run the Algorithm. This is solved through a fully encompassed VM Image that is available for [download](https://drive.google.com/file/d/1XToRe16e2IZbmlWRZCWrsQ4wYAn_fCII/view?usp=sharing). If interested, contact [me](mailto:halect2@miamioh.edu) for additional details.
+This Software Suite has many relational dependencies between the Scripts and Applications. Additionally, there are filesystem connections that need sorted out before being able to successfully run the Algorithm. This is solved through a fully encompassed VM Image that is available for [download](https://drive.google.com/file/d/1XToRe16e2IZbmlWRZCWrsQ4wYAn_fCII/view?usp=sharing). If interested, contact [Carter](mailto:halect2@miamioh.edu) for additional details.
 
 ## Credits
 Our team consists of three Senior Miami University Students: Carter Hale, Owen Hichens, and Eric Schonauer. The project was overseen and advised by Dr. Peter Jamieson.
