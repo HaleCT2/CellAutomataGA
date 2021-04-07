@@ -13,7 +13,7 @@ This project stemmed from planned research from our Project Advisor, [Dr. Peter 
 
 <br />
 
-| ![Collection of Cellular Automata](https://i.postimg.cc/QxzbD8tf/combo.gif) | 
+| ![Collection of Cellular Automata](https://i.postimg.cc/NfPWn2HF/Cellular-Automata.gif) | 
 |:--:| 
 | *Some of the Emergent Cellular Automata found by our Genetic Algorithm* |
 
