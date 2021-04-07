@@ -13,15 +13,9 @@ This project stemmed from planned research from our Project Advisor, [Dr. Peter 
 
 <br />
 
-| ![B01568/S2 Simulation](https://i.postimg.cc/d1gJg3gG/b01568-s2.gif) | 
+| ![Collection of Cellular Automata](https://i.postimg.cc/QxzbD8tf/combo.gif) | 
 |:--:| 
-| *Emergent Cellular Automaton (B01568/S2) found by our Genetic Algorithm* |
-
-<br />
-
-| ![B3/S02378 Simulation](https://i.postimg.cc/13S39gXH/b3-s02378.gif) | 
-|:--:| 
-| *Another Cellular Automaton (B3/S02378), similar to Conway's Game of Life (B3/S23)* |
+| *Some of the Emergent Cellular Automata found by our Genetic Algorithm* |
 
 </center>
 
