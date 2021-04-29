@@ -1,5 +1,5 @@
 ## CellAutomataGA
-A collection of Software and Scripts built and used in the Research of our Senior Design Project. Our goal was to determine if evolutionary algorithms could find emerging living cellular automata systems. Using a custom Genetic Algorithm, these tools have allowed us to explore different two-dimensional Automata and find new and interesting rulesets.
+A collection of Software and Scripts built and used in the Research of our Senior Design Project. Our goal was to determine if evolutionary algorithms could find emerging living cellular automata systems. Using a custom Genetic Algorithm, these tools have allowed us to explore different two-dimensional Automata and find new and interesting rulesets. 
 
 ## Motivation
 This project stemmed from planned research from our Project Advisor, [Dr. Peter Jamieson](http://www.drpeterjamieson.com/).
@@ -33,3 +33,5 @@ Our team consists of three Senior Miami University Students: Carter Hale, Owen H
 
 ## License
 MIT © [HaleCT2](https://github.com/HaleCT2)
+
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.4725604.svg)](https://doi.org/10.5281/zenodo.4725604)
