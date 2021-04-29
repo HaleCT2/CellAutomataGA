@@ -34,4 +34,4 @@ Our team consists of three Senior Miami University Students: Carter Hale, Owen H
 ## License
 MIT © [HaleCT2](https://github.com/HaleCT2)
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.4725604.svg)](https://doi.org/10.5281/zenodo.4725604)
+[![DOI](https://img.shields.io/badge/DOI-10.5281/zenodo.4725604-blue.svg)](https://doi.org/10.5281/zenodo.4725604)
