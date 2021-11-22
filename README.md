@@ -7,13 +7,13 @@ This project stemmed from planned research from our Project Advisor, [Dr. Peter 
 ## Screenshots
 <center>
 
-| ![Terminal Screenshot of Genetic Algorithm](https://i.postimg.cc/xT8LQ4k5/Terminal.jpg) | 
+| ![Terminal Screenshot of Genetic Algorithm](/Media/Terminal.jpg) | 
 |:--:| 
 | *Terminal Output of Genetic Algorithm in Ubuntu VM* |
 
 <br />
 
-| ![Collection of Cellular Automata](https://i.postimg.cc/NfPWn2HF/Cellular-Automata.gif) | 
+| ![Collection of Cellular Automata](/Media/Cellular-Automata.gif) | 
 |:--:| 
 | *Some of the Emergent Cellular Automata found by our Genetic Algorithm* |
 
